@@ -1,7 +1,8 @@
 ## Installation (macOS)
 ### Prerequisites
-- Python 3.x
-- Virtualenv 20.x.x
+- Python 3.x `sudo apt-get install python3.8`
+- pip `sudo apt-get install python3-pip`
+- venv `sudo apt-get install python3-venv`
 
 ### Getting the Certificates
 
