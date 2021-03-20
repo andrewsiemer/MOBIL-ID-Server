@@ -27,14 +27,13 @@
 ### Configuring the Server
 First, we need to change the file named `config_sample.py` to `config.py`.
 Now open `config.py` and set these variables:
-* PASS_TYPE_IDENTIFIER - the Pass Type ID from step 2 above
-* TEAM_IDENTIFIER - your Team ID found on developer.apple.com
-* WEB_SERVICE_URL - your domain (if running locally it will be something like 192.168.0.X:8000)
-* PASS_TYPE_CERTIFICATE_PATH - path to Pass Type cert (should be `'certificates/pass.pem'`)
-* WWDR_CERTIFICATE_PATH - path to WWDR cert (should be `'certificates/wwdr.pem'`)
-* OC_SHARED_SECRET - shared secret with client
-
-> All variables should be strings
+* DEBUG - *bool.* toggles logging, `/docs` test endpoint, and `pash_hash` viability
+* PASS_TYPE_IDENTIFIER - *str.* the Pass Type ID from step 2 above
+* TEAM_IDENTIFIER - *str.* your Team ID found on developer.apple.com
+* WEB_SERVICE_URL - *str.* your domain (if running locally it will be something like 192.168.0.X:8000)
+* PASS_TYPE_CERTIFICATE_PATH - *str.* path to Pass Type cert (should be `'certificates/pass.pem'`)
+* WWDR_CERTIFICATE_PATH - *str.* path to WWDR cert (should be `'certificates/wwdr.pem'`)
+* OC_SHARED_SECRET - *str.* shared secret with client
 
 ### Create Virtual Environment
 Open Terminal and go to `MOBIL-ID-Software/` directory:
