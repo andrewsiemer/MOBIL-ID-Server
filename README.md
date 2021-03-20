@@ -41,7 +41,11 @@ source bin/activate
 ```
 ### Install Dependencies
 ```sh
-sudo apt-get install libssl-dev swig python3-dev gcc
+sudo apt-get install libssl-dev swig python3-dev gcc build-essential libssl-dev libffi-dev python-dev
+```
+### Update PIP
+```sh
+pip install --upgrade --force-reinstall pip virtualenv
 ```
 
 ### Install PIP Requirements
