@@ -13,19 +13,31 @@
 ```shell
 	$ openssl x509 -inform der -in AppleWWDRCA.cer -out wwdr.pem
 ```
-* Move file to `/certificates`
+* Move file to `certificates/`
 
 2) Get a Pass Type Id
 * Visit the iOS Provisioning Portal -> Pass Type IDs -> New Pass Type ID
 * Select pass type id -> Configure (Follow steps and download generated pass.cer file)
 * Import downloaded certificate into Keychain Access on your Mac.
 * Export the certificate from Keychain Access into a `.pem` file
-* Move file to `/certificates` and name it `pass.pem`
+* Move file to `certificates/` and name it `pass.pem`
 
 > Note that if any certificate is expired, you won't be able to create a pass.
 
+### Configuring the Server
+First, we need to change the file named `config_sample.py` to `config.py`.
+Now open `config.py` and set these variables:
+* PASS_TYPE_IDENTIFIER - the Pass Type ID from step 2 above
+* TEAM_IDENTIFIER - your Team ID found on developer.apple.com
+* WEB_SERVICE_URL - your domain (if running locally it will be something like 192.168.0.X:8000)
+* PASS_TYPE_CERTIFICATE_PATH - path to Pass Type cert (should be `'certificates/pass.pem'`)
+* WWDR_CERTIFICATE_PATH - path to WWDR cert (should be `'certificates/wwdr.pem'`)
+* OC_SHARED_SECRET - shared secret with client
+
+> All variables should be strings
+
 ### Create Virtual Environment
-Open Terminal and go to `MOBIL-ID-Software` directory:
+Open Terminal and go to `MOBIL-ID-Software/` directory:
 ```sh
 cd /path/to/mobil-id-software
 ```
