@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+python-multipart
+jinja2
+aiofiles
+Pillow
+sqlalchemy
+requests
+pycryptodome
+apscheduler
+M2Crypto
+apns2
+gunicorn
+httptools
+uvloop

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/png" href="{{ url_for('static', path='favicon.ico') }}"/>
+    <link rel="apple-touch-icon" href="{{ url_for('static', path='apple-touch-icon.png') }}"/>
+    <link href="{{ url_for('static', path='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='css/signin.css') }}" rel="stylesheet">
+    <title>Reader Test</title>
+  </head>
+
+  <body class="text-center">
+    <form class="form-signin" action="/reader" method="post">
+      
+      {% if photo_URL == null %}
+      <h1 class="h3 mb-5 font-weight-normal">Ready to Scan</h1>
+      {% else %}
+      <img class="mb-4" src="{{ photo_URL }}" alt="" width="90" height="120" onContextMenu="return false;">
+      <h1 class="h3 mb-3 font-weight-normal">{{ name }}</h1>
+      <h1 class="h6 mb-3 font-weight-normal">{{ id_num }}</h1>
+      {% endif %}
+      
+      <label for="idNum" class="sr-only">OC ID Number</label>
+      <input type="idSingle" id="idNum" name="idNum" class="form-control" placeholder="ID Number" required autofocus>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Enter</button>
+      
+      <br><br>
+      <p class="mt-5 mb-3 text-muted">&copy; <script>document.write(new Date().getFullYear())</script> Oklahoma Christian University</p>
+    </form>
+  </body>
+</html>

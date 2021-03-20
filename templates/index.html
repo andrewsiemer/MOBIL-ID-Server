@@ -1,0 +1,49 @@
+<!doctype html>
+
+<script language=javascript>
+  if (!((navigator.userAgent.match(/Macintosh/i)) || (navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)))) {
+     location.replace("/not-supported");
+  }
+</script>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/png" href="{{ url_for('static', path='favicon.ico') }}"/>
+    <link rel="apple-touch-icon" href="{{ url_for('static', path='apple-touch-icon.png') }}"/>
+    <link href="{{ url_for('static', path='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='css/signin.css') }}" rel="stylesheet">    
+    <title>Request your OC ID</title>
+
+  </head>
+
+  <body class="text-center">
+    <form class="form-signin" action="/" method="post">
+      <br>
+      <img class="mb-4" src="{{ url_for('static', path='oc-logo.png') }}" alt="" width="72" height="72" draggable="false" onContextMenu="return false;">
+      <h1 class="h3 mb-3 font-weight-normal">Request your OC ID</h1>
+      <p>Your ID number and pin can be found in "My Info" on myOC.</p>
+      <p>Once you press “Request ID” please allow a moment for your request to be processed.</p>
+      
+      {% if feedback != null%}
+      <div class="alert alert-danger" role="alert">{{ feedback }}</div>
+      {% elif beta != null%}
+      <div class="alert alert-dark" role="alert">{{ beta }}</div>
+      {% endif %}
+      <label for="idNum" class="sr-only">OC ID Number</label>
+      {% if entered_id == null %}
+      <input type="id" pattern="[0-9]*" id="idNum" name="idNum" class="form-control" placeholder="ID Number" required autofocus>
+      {% else %}
+      <input type="id" pattern="[0-9]*" id="idNum" name="idNum" class="form-control" value="{{ entered_id }}" required autofocus>
+      {% endif %}
+      <label for="idPin" class="sr-only">ID Card Pin #</label>
+      <input type="password" pattern="[0-9]*" inputmode="numeric" id="idPin" name="idPin" class="form-control" placeholder="ID Card Pin #" required>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Request ID</button>
+
+
+      <p><br>Requires iOS 10.0 and watchOS 2.0 or later. Compatible with iPhone and iPod touch.</p>
+      <a href='team'><p class="mt-5 mb-3 text-muted">&copy; <script>document.write(new Date().getFullYear())</script> Oklahoma Christian University</p></a>
+    </form>
+  </body>
+</html>

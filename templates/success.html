@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/png" href="{{ url_for('static', path='favicon.ico') }}"/>
+    <link rel="apple-touch-icon" href="{{ url_for('static', path='apple-touch-icon.png') }}"/>
+    <link href="{{ url_for('static', path='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='css/signin.css') }}" rel="stylesheet">
+    <title>Add to Apple Wallet</title>
+  </head>
+
+  <body class="text-center">
+    <form class="form-signin" action="/download/{{ pass_hash }}" method="post">
+      <h1 class="h3 mb-3 font-weight-normal">Your ID is ready!</h1>
+      <p>To add this pass to Wallet, open this web page on your iPhone or iPod touch.</p>
+      <input type="image" src="{{ url_for('static', path='Add_to_Apple_Wallet.svg') }}" alt="" width="200" draggable="false" onContextMenu="return false;">
+      <p class="mt-5 mb-3 text-muted">&copy; <script>document.write(new Date().getFullYear())</script> Oklahoma Christian University</p>
+    </form>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+# Virual Environment
+bin/
+lib/
+pyvenv.cfg
+
+# Configuration Files
+config.py
+certificates/*.pem
+
+# Local Test Database
+mobil-id.db
+
+# Created Passes
+server/passes/*.pkpass
+server/passes/*.pass
+
+# macOS & Cache Files
+.DS_Store
+__pycache__/
+.vscode/
