@@ -21,8 +21,8 @@ class User():
         self.valid = True
 
         self.id = entered_id
-        token = utils.encrypt(self.id + '-' + str(time.time()), config.OC_SHARED_SECRET)
-        request_URL = 'https://account.oc.edu/mobilepass/details/' + self.id + '?token=' + token
+        token = utils.AES256()
+        request_URL = 'https://account.oc.edu/mobilepass/details/' + self.id + '?token=' + token.encrypt(self.id, config.OC_SHARED_SECRET).hex()
         
         if config.DEBUG:
             print(request_URL)
@@ -94,8 +94,8 @@ class Pkpass():
         passinfo.addBackField('pin', user_pass.id_pin, 'ID Pin')
         passinfo.addBackField('print', user_pass.print_balance, 'Print Balance', 'Your print balance is now %@.')
         if user_pass.mailbox:
-            passinfo.addBackField('boxnumber', user_pass.mailbox, 'Mailbox Nuber')
-        passinfo.addBackField('tribute', 'Andrew Siemer, Jacob Button, Kyla Tarpey, & Zach Jones', 'Created by Team MOBIL-ID')
+            passinfo.addBackField('boxnumber', user_pass.mailbox, 'Mailbox Number')
+        passinfo.addBackField('tribute', 'Andrew Siemer, Jacob Button, Kyla Tarpey & Zach Jones', 'Created by Team MOBIL-ID')
         if config.DEBUG:
             passinfo.addBackField('hash', user_pass.pass_hash, 'Pass Hash')
 

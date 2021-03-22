@@ -1,23 +1,67 @@
 '''
 utils.py: Reusable functions to interact with the main program.
 '''
-import hashlib, secrets
-from base64 import b64encode, b64decode
-from Crypto.Util import Padding
-from Crypto.Cipher import AES
-from Crypto import Random
+import secrets, sys, base64
 
 from sqlalchemy.orm import Session
 from fastapi.responses import FileResponse
 from apns2.client import APNsClient
 from apns2.payload import Payload
+from hashlib import md5
+from Cryptodome import Random
+from Cryptodome.Cipher import AES
 
 import include.crud as crud, config
 
-'''
-Quickly validate login input to not waste API call
-'''
+class AES256():
+    '''
+    Encrypts & decrypts a string using a passphrase and AES-256
+    '''
+    def __init__(self):
+        self.py2 = sys.version_info[0] == 2
+
+        self.BLOCK_SIZE = 16
+        self.KEY_LEN = 32
+        self.IV_LEN = 16
+
+    def encrypt(self, raw, passphrase):
+        salt = Random.new().read(8)
+        key, iv = self.__derive_key_and_iv(passphrase, salt)
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+        return base64.b64encode(b'Salted__' + salt + cipher.encrypt(self.__pkcs7_padding(raw)))
+
+    def decrypt(self, enc, passphrase):
+        ct = base64.b64decode(enc)
+        salted = ct[:8]
+        if salted != b'Salted__':
+            return ""
+        salt = ct[8:16]
+        key, iv = self.__derive_key_and_iv(passphrase, salt)
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+        return self.__pkcs7_trimming(cipher.decrypt(ct[16:]))
+
+    def __pkcs7_padding(self, s):
+        s_len = len(s if self.py2 else s.encode('utf-8'))
+        s = s + (self.BLOCK_SIZE - s_len % self.BLOCK_SIZE) * chr(self.BLOCK_SIZE - s_len % self.BLOCK_SIZE)
+        return s if self.py2 else bytes(s, 'utf-8')
+
+    def __pkcs7_trimming(self, s):
+        if sys.version_info[0] == 2:
+            return s[0:-ord(s[-1])]
+        return s[0:-s[-1]]
+
+    def __derive_key_and_iv(self, password, salt):
+        d = d_i = b''
+        enc_pass = password if self.py2 else password.encode('utf-8')
+        while len(d) < self.KEY_LEN + self.IV_LEN:
+            d_i = md5(d_i + enc_pass + salt).digest()
+            d += d_i
+        return d[:self.KEY_LEN], d[self.KEY_LEN:self.KEY_LEN + self.IV_LEN]
+
 def input_validate(id: str, pin: str):
+    '''
+    Quickly validate login input to not waste API call
+    '''
     valid = True
     if len(id) == 7 and len(pin) == 4:
         try:
@@ -30,10 +74,10 @@ def input_validate(id: str, pin: str):
     
     return valid
 
-'''
-Makes sure hash is unique in the database
-'''
 def unique_hash(db: Session, num_bytes: int):
+    '''
+    Makes sure hash is unique in the database
+    '''
     unique = False
     while(not unique):
         hash = secrets.token_urlsafe(num_bytes)
@@ -44,36 +88,16 @@ def unique_hash(db: Session, num_bytes: int):
 
     return hash
 
-'''
-Gets the pass file associated with the given serial_number
-'''
 def get_pass_file(db: Session, serial_number: str):
+    '''
+    Gets the pass file associated with the given serial_number
+    '''
     return FileResponse('passes/' + serial_number + '.pkpass', media_type='application/vnd.apple.pkpass', filename='ocid.pkpass')
 
-'''
-Encrypts a string of text with a given password using AES-256 encryption
-'''
-def encrypt(raw, password):
-    private_key = hashlib.sha256(password.encode("utf-8")).digest()
-    raw = Padding.pad(raw.encode('utf-8'), AES.block_size)
-    iv = Random.new().read(AES.block_size)
-    cipher = AES.new(private_key, AES.MODE_CBC, iv)
-    return b64encode(iv + cipher.encrypt(raw)).decode("utf-8")
-
-'''
-Decrypts a string of text with a given password using AES-256 encryption
-'''
-def decrypt(enc, password):
-    private_key = hashlib.sha256(password.encode("utf-8")).digest()
-    enc = b64decode(enc)
-    iv = enc[:16]
-    cipher = AES.new(private_key, AES.MODE_CBC, iv)
-    return Padding.unpad(cipher.decrypt(enc[16:]), AES.block_size).decode('utf-8')
-
-'''
-Sends an empty APN to the given device push_token
-'''
 def send_apn(push_token: str):
+    '''
+    Sends an empty APN to the given device push_token
+    '''
     payload = Payload()
     client = APNsClient(config.PASS_TYPE_CERTIFICATE_PATH, use_sandbox=False, use_alternative_port=False)
     client.send_notification(push_token, payload, config.PASS_TYPE_IDENTIFIER)

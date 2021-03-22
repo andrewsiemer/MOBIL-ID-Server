@@ -6,7 +6,7 @@ aiofiles
 Pillow
 sqlalchemy
 requests
-pycryptodome
+pycryptodomex
 apscheduler
 M2Crypto
 apns2
