@@ -48,7 +48,7 @@ def unique_hash(db: Session, num_bytes: int):
 Gets the pass file associated with the given serial_number
 '''
 def get_pass_file(db: Session, serial_number: str):
-    return FileResponse('passes/' + serial_number + '.pkpass', media_type='.pkpass', filename='ocid.pkpass')
+    return FileResponse('passes/' + serial_number + '.pkpass', media_type='application/vnd.apple.pkpass', filename='ocid.pkpass')
 
 '''
 Encrypts a string of text with a given password using AES-256 encryption
