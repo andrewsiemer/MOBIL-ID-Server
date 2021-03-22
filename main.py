@@ -253,7 +253,7 @@ def submit(request: Request, idNum: str = Form(...), idPin: str = Form(...), db:
     else:
         # entered ID num is not on whitelist
         response = templates.TemplateResponse('index.html', \
-            {'request': request, 'beta': 'This program is currently invite-only. Please try again later.'})
+            {'request': request, 'beta': 'The beta-testing program is currently invite-only.'})
         
     return response
 
