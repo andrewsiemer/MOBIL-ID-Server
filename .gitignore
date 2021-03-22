@@ -11,8 +11,8 @@ certificates/*.pem
 mobil-id.db
 
 # Created Passes
-server/passes/*.pkpass
-server/passes/*.pass
+passes/*.pkpass
+passes/*.pass
 
 # macOS & Cache Files
 .DS_Store
