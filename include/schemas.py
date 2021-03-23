@@ -27,7 +27,7 @@ class User():
         if config.DEBUG:
             print(request_URL)
         
-        r = requests.get(request_URL, timeout=3)
+        r = requests.get(request_URL, timeout=5)
         try:
             # try to parse request body
             self.data = r.json()
