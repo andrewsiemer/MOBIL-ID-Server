@@ -1,7 +1,8 @@
 '''
 utils.py: Reusable functions to interact with the main program.
 '''
-import secrets, sys, base64
+import secrets, sys, base64, smtplib, ssl
+from datetime import datetime
 
 from sqlalchemy.orm import Session
 from fastapi.responses import FileResponse
@@ -11,7 +12,7 @@ from hashlib import md5
 from Cryptodome import Random
 from Cryptodome.Cipher import AES
 
-import include.crud as crud, config
+import config, include.crud as crud, include.schemas as schemas
 
 class AES256():
     '''
@@ -58,6 +59,27 @@ class AES256():
             d += d_i
         return d[:self.KEY_LEN], d[self.KEY_LEN:self.KEY_LEN + self.IV_LEN]
 
+class Email():
+    def __init__(self, subject: str, body: str):
+        self.tag = '[MOBIL-ID]'
+        self.subject = subject
+        self.body = body
+        self.signature = 'This is an automated message from the MOBIL-ID Server.'
+
+    def get_message(self):
+        return 'Subject: ' + self.tag + ' ' + self.subject + '\n\n' + self.body + '\n\n\n' + self.signature
+    
+    def send(self):
+        # Create secure connection with server and send email
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL(config.SMTP_SERVER, config.EMAIL_PORT, context=context) as server:
+            server.login(config.SENDER_EMAIL, config.EMAIL_PASSWORD)
+            server.sendmail(config.SENDER_EMAIL, config.RECEIVER_EMAIL, self.get_message())
+
+def send_notification(subject: str, body: str):
+    email = Email(subject, body)
+    email.send()
+
 def input_validate(id: str, pin: str):
     '''
     Quickly validate login input to not waste API call
@@ -93,6 +115,27 @@ def get_pass_file(db: Session, serial_number: str):
     Gets the pass file associated with the given serial_number
     '''
     return FileResponse('passes/' + serial_number + '.pkpass', media_type='application/vnd.apple.pkpass', filename='ocid.pkpass')
+
+def force_pass_update(db: Session, serial_number: str):
+    crud.update_hash(db, serial_number)
+    push_pass_update(db, serial_number)
+
+def update_pass(db: Session, serial_number: str):
+    '''
+    Updates pass with serial_number
+    '''
+    user = schemas.User(serial_number)
+    if user.is_valid():
+        # if user is valid,
+        # update database pass
+        crud.update_db_pass(db, user)
+        # start background task to update pass with new pass_hash
+        push_pass_update(db, serial_number)
+
+def push_pass_update(db: Session, serial_number: str):
+    push_tokens = crud.get_device_list_by_pass(db, serial_number)
+    for push_token in push_tokens:
+            send_apn(push_token)
 
 def send_apn(push_token: str):
     '''
