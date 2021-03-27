@@ -47,7 +47,8 @@ class Field(object):
 
         self.key = key  # Required. The key must be unique within the scope
         self.value = value  # Required. Value of the field. For example, 42
-        self.label = label  # Optional. Label text for the field.
+        if label:
+            self.label = label  # Optional. Label text for the field.
         if changeMessage:
             self.changeMessage = changeMessage  # Optional. Format string for the alert text that is displayed when the pass is updated
         self.textAlignment = textAlignment
@@ -148,19 +149,19 @@ class PassInformation(object):
         self.backFields = []
         self.auxiliaryFields = []
 
-    def addHeaderField(self, key, value, label='', changeMessage=None, textAlignment=Alignment.NATURAL):
+    def addHeaderField(self, key, value, label=None, changeMessage=None, textAlignment=Alignment.NATURAL):
         self.headerFields.append(Field(key, value, label, changeMessage, textAlignment))
 
-    def addPrimaryField(self, key, value, label='', changeMessage=None, textAlignment=Alignment.NATURAL):
+    def addPrimaryField(self, key, value, label=None, changeMessage=None, textAlignment=Alignment.NATURAL):
         self.primaryFields.append(Field(key, value, label, changeMessage, textAlignment))
 
-    def addSecondaryField(self, key, value, label='', changeMessage=None, textAlignment=Alignment.NATURAL):
+    def addSecondaryField(self, key, value, label=None, changeMessage=None, textAlignment=Alignment.NATURAL):
         self.secondaryFields.append(Field(key, value, label, changeMessage, textAlignment))
 
-    def addBackField(self, key, value, label='', changeMessage=None, textAlignment=Alignment.NATURAL):
+    def addBackField(self, key, value, label=None, changeMessage=None, textAlignment=Alignment.NATURAL):
         self.backFields.append(Field(key, value, label, changeMessage, textAlignment))
 
-    def addAuxiliaryField(self, key, value, label='', changeMessage=None, textAlignment=Alignment.NATURAL):
+    def addAuxiliaryField(self, key, value, label=None, changeMessage=None, textAlignment=Alignment.NATURAL):
         self.auxiliaryFields.append(Field(key, value, label, changeMessage, textAlignment))
 
     def json_dict(self):
