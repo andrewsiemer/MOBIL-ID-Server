@@ -157,13 +157,3 @@ def update_hash(db: Session, serial_number: str):
     db_pass.last_update = datetime.utcnow().replace(microsecond=0)
     db.commit()
     Pkpass(db, serial_number)
-
-def force_pass_update(db: Session, serial_number: str):
-    update_hash(db, serial_number)
-
-    push_pass_update(db, serial_number)
-
-def push_pass_update(db: Session, serial_number: str):
-    push_tokens = get_device_list_by_pass(db, serial_number)
-    for push_token in push_tokens:
-            utils.send_apn(push_token)
