@@ -21,10 +21,67 @@ The MOBIL-ID Server is a Python web service responsible for creating, deploying,
 
 
 ## Installation (macOS/Linux)
-### Prerequisites
-- Python 3.x `sudo apt-get install python3.8`
-- pip `sudo apt-get install python3-pip`
-- venv `sudo apt-get install python3-venv`
+### Install Prerequisites
+* Python 3
+* Python3-PIP
+* Python3-Venv
+* Git
+
+> You should also always use `sudo apt update && apt upgrade` before starting the installation process to make sure your system packages are up to date.
+
+Install Python 3.8 using:
+```sh
+sudo apt-get install python3.8
+```
+
+Install PIP using:
+```sh
+sudo apt-get install python3-pip
+```
+
+Install Venv using:
+```sh
+sudo apt-get install python3-venv
+```
+
+Install Git using:
+```sh
+sudo apt install git-all -y
+```
+
+### Download MOBIL-ID Server software
+In the current users home directory, run:
+```sh
+git clone https://github.com/andrewsiemer/MOBIL-ID-Server
+```
+### Create Virtual Environment
+Then create a virtual environment in the `MOBIL-ID-Server/` directory with:
+```sh
+python3 -m venv MOBIL-ID-Server/
+```
+
+### Activate Virtual Environment
+```sh
+cd MOBIL-ID-Server/
+source bin/activate
+```
+
+### Install Dependencies
+Now that we are inside the environment we need to install our dependencies using:
+```sh
+sudo apt-get install libssl-dev swig python3-dev gcc build-essential libssl-dev libffi-dev python-dev
+```
+
+### Update PIP
+```sh
+pip install --upgrade --force-reinstall pip virtualenv
+```
+
+### Install PIP Requirements
+Install all requirements at once using:
+```sh
+pip3 install -r requirements.txt
+```
 
 ### Getting the Certificates
 
@@ -58,36 +115,7 @@ Now open `config.py` and set these variables:
 * WWDR_CERTIFICATE_PATH - *str.* path to WWDR cert (should be `'certificates/wwdr.pem'`)
 * OC_SHARED_SECRET - *str.* shared secret with client
 
-### Create Virtual Environment
-Open Terminal and go to `MOBIL-ID-Software/` directory:
-```sh
-cd /path/to/mobil-id-software
-```
-Create Virtual Environment in `server` folder:
-```sh
-python3 -m venv server
-```
-
-### Activate Virtual Environment
-```sh
-cd server
-source bin/activate
-```
-### Install Dependencies
-```sh
-sudo apt-get install libssl-dev swig python3-dev gcc build-essential libssl-dev libffi-dev python-dev
-```
-### Update PIP
-```sh
-pip install --upgrade --force-reinstall pip virtualenv
-```
-
-### Install PIP Requirements
-Install all requirements at once using:
-```sh
-pip3 install -r requirements.txt
-```
-### Start Server
+### Start Development Server
 To start server on your local network include the host tag with your ip address.
 ```sh
 uvicorn main:app --reload --host <ip>
@@ -97,6 +125,148 @@ uvicorn main:app --reload --host <ip>
 ```
 http://<ip>:8000
 ```
+
+## Deploying to a Production Environment (Linux)
+
+## Prerequisites
+* Domain name is setup with A record of server address
+* You have an existing SSL certificate for your domain
+
+> It is recommended to dedicate a new user in the sudo group for running the server (never use root). You should also consider changing your computer's hostname for easier access.
+
+### Uncomplicated Firewall:
+Install UFW using:
+```sh
+sudo apt install ufw
+```
+
+Next, we need to configure UFW using:
+```sh
+sudo ufw default allow outgoing
+sudo ufw default deny incoming
+sudo ufw allow ssh
+sudo ufw allow http/tcp
+sudo ufw allow https/tcp
+
+Then, we will enable our configuration with:
+```sh
+sudo ufw enable
+```
+
+Lastly, we will check that we configured UFW correctly using the command below. Check to make sure ssh(22), http(80), & https(443) are allowed.
+```sh 
+sudo ufw status
+```
+
+> If configured incorrectly, you could block yourself from ssh access to the computer.
+
+### Nginx
+Install Nginx using:
+```sh
+sudo apt install nginx
+```
+
+To configure Nginx proxy for our server, we need to first delete the default configuration.
+```sh
+sudo rm /etc/nginx/sites-enabled/default
+```
+
+Next, we will create our own configuration file using:
+```sh
+sudo nano /etc/nginx/sites-enabled/server
+```
+
+Inside the file paste the following lines:
+```sh
+server {
+	server_name <www> <non-www>;
+
+	location /static {
+		alias /path/to/MOBIL-ID-Server/static;
+	}
+
+	location / {
+		proxy_pass http://localhost:8000;
+		include /etc/nginx/proxy_params;
+		proxy_redirect off;
+	}
+
+	listen 443 ssl; 
+	listen [::]:443 ssl;
+	ssl_certificate /path/to/SSL-cert.pem;
+	ssl_certificate_key /path/to/SSL-key.pem;
+}
+server {
+	if ($host = <www>) {
+		return 301 https://$host$request_uri;
+	}
+
+	if ($host = <non-www>) {
+		return 301 https://$host$request_uri;
+	}
+	listen 80;
+	listen [::]:443;
+	server_name <www> <non-www>;
+	return 404;
+}
+```
+
+Then, change `<www>` to the www domain of the server & `<non-www>` to the non-www domain of the server. Change the `/path/to/` to the actual path to the downloaded software, certificate, & key.
+
+Save and exit the file using `^X` then type `y` and click your `enter/return` key.
+
+Check the configuration file contents using:
+```sh
+sudo nginx -t
+```
+
+Lastly, we want to restart Nginx to use our new configuration using:
+```sh
+sudo system to restart nginx
+```
+
+### Supervisor
+Install Supervisor using:
+```sh
+sudo apt install supervisor
+```
+
+Create a new configuration file using:
+```sh
+sudo nano /etc/supervisor/conf.d/server.conf
+```
+
+Inside the file paste the following lines:
+```sh
+[program: server]
+directory=/path/to/MOBIL-ID-Server
+command=/path/to/MOBIL-ID-Server/bin/gunicorn -w <num-workers> run:app
+user=admin
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+stderr_logfile=/var/log/server/server.err.log
+stdout_logfile=/var/log/server/server.out.log
+```
+
+Then, change `<num-workers>` to the number of available processors the computer has plus one. Change the `/path/to/` to the actual path to the downloaded software.
+
+Create the server log files with:
+```sh
+sudo mkdir -p /var/log/server
+sudo touch /var/log/server/server.err.log
+sudo touch /var/log/server/server.out.log
+```
+
+Lastly, we want to restart Supervisor to use our new configuration using:
+```sh
+sudo supervisorctl reload
+```
+
+### Test the Server
+Your server should now be available in a browser using:
+`https://<your-domain>`
 
 ## Reference Links
 ### FastAPI
@@ -113,7 +283,3 @@ http://<ip>:8000
 * [Apple PassKit Web Service Documentation](https://developer.apple.com/library/archive/documentation/PassKit/Reference/PassKit_WebService/WebService.html#//apple_ref/doc/uid/TP40011988) - communicate with deployed passes
 * [Pass Bundle Validator](https://pkpassvalidator.azurewebsites.net) - validates a created pass file with framework
 * [Sending Push Notifications using Terminal](https://developer.apple.com/documentation/usernotifications/sending_push_notifications_using_command-line_tools) - tell device to check for pass update
-
-### OC Related
-* [OC Database example API call](https://account.oc.edu/mobilepass/details/1458777) - request for user data from OC database
-* [AES-256 Encrytion](https://www.quickprogrammingtips.com/python/aes-256-encryption-and-decryption-in-python.html) - for ecrypting data requests to OC
