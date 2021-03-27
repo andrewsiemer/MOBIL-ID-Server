@@ -27,24 +27,34 @@ class User():
         if config.DEBUG:
             print(request_URL)
         
-        r = requests.get(request_URL, timeout=5)
-        try:
-            # try to parse request body
-            self.data = r.json()
-        except:
-            # if bad response from OC,
-            # invalidate user
-            self.valid = False
-        else:
-            # the json data was parsed without error
-            if entered_pin:
-                # if a login pin was entered,
-                # check for validation
-                self.validate(entered_pin)
-            if self.is_valid():
-                # if user is valid,
-                # create user object
-                self.create()
+        tries = 3 # number of tries to get new data
+        for i in range(tries):
+            try:
+                # try GET request
+                r = requests.get(request_URL, timeout=3)
+                # try to parse request body
+                self.data = r.json()
+            except:
+                # exception occured, if tries left then continue trying
+                # else re-raise original exception
+                if i < tries - 1: # i is zero indexed
+                    continue
+                else:
+                    # if bad response from OC,
+                    # invalidate user
+                    self.valid = False
+                    raise
+            else:
+                # the json data was parsed without error
+                if entered_pin:
+                    # if a login pin was entered,
+                    # check for validation
+                    self.validate(entered_pin)
+                if self.is_valid():
+                    # if user is valid,
+                    # create user object
+                    self.create()
+            break
     
     def validate(self, entered_pin):
         self.pin = self.data['IDPin']
@@ -55,11 +65,10 @@ class User():
         
         return self.valid
         
-
-    '''
-    User is valid, store data in python object
-    '''
     def create(self):
+        '''
+        User is valid, store data in python object
+        '''
         # parse User data into reusable variables
         self.name = self.data['FullName']
         self.photo_URL = self.data['PhotoURL']
@@ -95,7 +104,9 @@ class Pkpass():
         passinfo.addBackField('print', user_pass.print_balance, 'Print Balance', 'Your print balance is now %@.')
         if user_pass.mailbox:
             passinfo.addBackField('boxnumber', user_pass.mailbox, 'Mailbox Number')
-        passinfo.addBackField('tribute', 'Andrew Siemer, Jacob Button, Kyla Tarpey & Zach Jones', 'Created by Team MOBIL-ID')
+        passinfo.addBackField('info', 'Please note that Automatic Updates must be turned on (default) to use the ID.\n\n' \
+            + 'Report Feedback:\nhttps://forms.gle/6bAWYccfs9KsNAdP8\n\n' \
+            + 'Created by the MOBIL-ID Team:\nAndrew Siemer, Jacob Button, Kyla Tarpey & Zach Jones\n')
         if config.DEBUG:
             passinfo.addBackField('hash', user_pass.pass_hash, 'Pass Hash')
 
@@ -120,9 +131,6 @@ class Pkpass():
         passfile.locations.append(Location(35.61201, -97.46850, relevantText='Welcome to the Brew! Tap to scan your ID.', maxDistance=20))
         passfile.ibeacons = list()
         passfile.ibeacons.append(IBeacon('1F234454-CF6D-4A0F-ADF2-F4911BA9FFA9', 1, 1, 'Tap to scan your ID.'))
-        # Make pass expire after 25 hours, 
-        # If pass goes unused during day batch update will update
-        # passfile.expirationDate = str((pytz.utc.localize(datetime.utcnow())+timedelta(hours=25)).isoformat())
 
         # Including the icon and logo is necessary for the passbook to be valid.
         passfile.addFile('icon.png', open('base.pass/icon.png', 'rb'))
