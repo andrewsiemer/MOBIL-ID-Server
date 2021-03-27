@@ -186,6 +186,8 @@ def log(message: dict):
     Logging Errors
     '''
     print(message['logs'][0])
+    info = utils.Email('PassKit Log', message['logs'][0])
+    info.send()
     return Response(status_code=200)
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -258,7 +260,7 @@ def submit(request: Request, idNum: str = Form(...), idPin: str = Form(...), db:
     return response
 
 @app.post("/download/{pass_hash}", status_code=200, tags=["Registration"])
-def download(request: Request, pass_hash: str, db: Session = Depends(get_db)):
+def download(request: Request, pass_hash: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     '''
     User can Download Pass
     '''
@@ -268,7 +270,9 @@ def download(request: Request, pass_hash: str, db: Session = Depends(get_db)):
     if db_pass:
         # if a pass matching the request is found,
         # returns the matching pass file
-        response = utils.get_pass_file(db, db_pass.serial_number) 
+        response = utils.get_pass_file(db, db_pass.serial_number)
+
+        background_tasks.add_task(utils.send_notification, 'Pass Downloaded', 'Pass downloaded for ' + db_pass.name + ' (' + db_pass.serial_number + ')')
     else:
         # no matching pass found,
         # returns HTML status no matching data
@@ -276,7 +280,7 @@ def download(request: Request, pass_hash: str, db: Session = Depends(get_db)):
     
     return response
 
-@app.get("/scan/{pass_hash}", tags=["Reader"])
+@app.get("/scan/{pass_hash}", status_code=200, tags=["Reader"])
 async def scan(pass_hash: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     '''
     Scan event converts QR data to serial_number
@@ -288,14 +292,33 @@ async def scan(pass_hash: str, background_tasks: BackgroundTasks, db: Session = 
         # respond with the corresponding serial_number
         response = db_pass.serial_number
         # start background task to update pass with new pass_hash
-        background_tasks.add_task(crud.force_pass_update, db, response)
-        sched.add_job(update_pass, 'date', run_date=str(datetime.now() + timedelta(seconds=90)), args=[db, response])
+        background_tasks.add_task(utils.force_pass_update, db, response)
+        # sched.add_job(utils.update_pass, 'date', run_date=str(datetime.now() + timedelta(seconds=90)), args=[db, response])
     else:
         # no matching pass found,
         # returns HTML status no matching data
         response = Response(status_code=204)
 
     return response
+
+@app.get("/{client}/update/{serial_number}", tags=["Client Updates"])
+async def update(client: str, serial_number: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    '''
+    Client notifies server of updated user data
+    '''
+    db_pass = crud.get_pass(db, serial_number)
+    if db_pass:
+        # if a pass exists for user,
+        # start background pass update task
+        background_tasks.add_task(utils.update_pass, db, serial_number)
+        response = Response(status_code=200)
+    else:
+        # no matching pass found,
+        # returns HTML status no matching data
+        response = Response(status_code=204)
+    
+    return response
+
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 Scheduled Tasks
@@ -304,7 +327,7 @@ Scheduled Tasks
 sched = BackgroundScheduler(daemon=True)
 sched.start()
 
-@sched.scheduled_job('interval', start_date='2021-1-1 0:0:00', days=1)
+@sched.scheduled_job('interval', start_date='2021-1-1 0:0:0', days=1)
 def batch_update_all():
     '''
     Updates every pass in database
@@ -314,7 +337,7 @@ def batch_update_all():
 
     threads = list()
     for serial_number in pass_list:
-        thread = threading.Thread(target=update_pass, args=(db,serial_number))
+        thread = threading.Thread(target=utils.update_pass, args=(db,serial_number))
         threads.append(thread)
         thread.start()
 
@@ -323,22 +346,18 @@ def batch_update_all():
 
     db.close()
 
-def update_pass(db: Session, serial_number: str):
-    '''
-    Updates pass with serial_number
-    '''
-    user = schemas.User(serial_number)
-    if user.is_valid():
-        # if user is valid,
-        # update database pass
-        crud.update_db_pass(db, user)
-        # start background task to update pass with new pass_hash
-        crud.push_pass_update(db, serial_number)
+@app.on_event("startup")
+def startup_event():
+    startup = utils.Email('Server Started', 'The server started at ' + str(datetime.utcnow()) + ' (UTC)')
+    startup.send()
 
 @app.on_event("shutdown")
 def shutdown_event():
     global sched
     sched.shutdown()
+
+    startdown = utils.Email('Server Started', 'The server shutdown at ' + str(datetime.utcnow()) + ' (UTC)')
+    startdown.send()
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 Development Tools for Web Service
