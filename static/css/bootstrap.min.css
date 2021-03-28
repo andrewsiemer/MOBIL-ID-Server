@@ -2656,8 +2656,8 @@ fieldset:disabled a.btn {
 .btn-primary.disabled,
 .btn-primary:disabled {
 	color: #fff;
-	background-color: #007bff;
-	border-color: #007bff
+	background-color: #591820;
+	border-color: #591820;
 }
 
 .btn-primary:not(:disabled):not(.disabled).active,
