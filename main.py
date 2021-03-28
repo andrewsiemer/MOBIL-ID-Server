@@ -221,7 +221,7 @@ def submit(request: Request, idNum: str = Form(...), idPin: str = Form(...), db:
             # check for existing pass
             db_pass = crud.get_pass(db, entered_id_num)
             if not db_pass:
-                # if pass for user already exists,
+                # if pass for user does not exist,
                 # check for vaild User though OC
                 user = schemas.User(entered_id_num, entered_id_pin)
                 if user.is_valid(): 
@@ -293,7 +293,6 @@ async def scan(pass_hash: str, background_tasks: BackgroundTasks, db: Session = 
         response = db_pass.serial_number
         # start background task to update pass with new pass_hash
         background_tasks.add_task(utils.force_pass_update, db, response)
-        # sched.add_job(utils.update_pass, 'date', run_date=str(datetime.now() + timedelta(seconds=90)), args=[db, response])
     else:
         # no matching pass found,
         # returns HTML status no matching data
@@ -405,3 +404,4 @@ async def http_exception_handler(request: Request, exc):
     Redirect all 404 traffic to homepage
     '''
     return RedirectResponse('/')
+    
