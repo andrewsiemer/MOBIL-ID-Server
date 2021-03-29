@@ -112,7 +112,7 @@ def get_passes(request: Request, device_id: str, pass_type: str, passesUpdatedSi
             # if there were matching passes, returns HTTP status 200
             # with a JSON dictionary with the following keys and value
             response = {'lastUpdated': str(last_updated), 'serialNumbers': serial_numbers}
-            logging.debug('Device (' + device_id + ') with registrations (' + serial_numbers + ') was last updated at ' + str(last_updated))
+            logging.debug('Device (' + device_id + ') with registrations (' + str(serial_numbers) + ') was last updated at ' + str(last_updated))
         else:
             # if there are no matching passes, 
             # returns HTTP status 204
