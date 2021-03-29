@@ -23,8 +23,8 @@ The MOBIL-ID Server is a Python web service responsible for creating, deploying,
 ## Installation (macOS/Linux)
 ### Install Prerequisites
 * Python 3
-* Python3-PIP
-* Python3-Venv
+* Python3-pip
+* Python3-venv
 * Git
 
 > You should also always use `sudo apt update && apt upgrade` before starting the installation process to make sure your system packages are up to date.
