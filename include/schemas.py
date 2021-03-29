@@ -24,9 +24,6 @@ class User():
         token = utils.AES256()
         request_URL = 'https://account.oc.edu/mobilepass/details/' + self.id + '?token=' + token.encrypt(self.id, config.OC_SHARED_SECRET).hex()
         
-        if config.DEBUG:
-            print(request_URL)
-        
         tries = 3 # number of tries to get new data
         for i in range(tries):
             try:
