@@ -9,6 +9,7 @@ certificates/*.pem
 
 # Local Test Database
 mobil-id.db
+*.log
 
 # Created Passes
 passes/*.pkpass
