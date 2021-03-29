@@ -268,6 +268,14 @@ sudo supervisorctl reload
 Your server should now be available in a browser using:
 `https://<your-domain>`
 
+### Update Server
+You can update the server from the main repository using:
+```sh
+cd /path/to/MOBIL-ID-Server
+git pull
+sudo supervisorctl reload
+```
+
 ## Reference Links
 ### FastAPI
 * [First Steps](https://fastapi.tiangolo.com/tutorial/first-steps/) - basic web service functionality
