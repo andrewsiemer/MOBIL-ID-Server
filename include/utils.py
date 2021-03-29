@@ -64,7 +64,7 @@ class Email():
         self.tag = '[MOBIL-ID]'
         self.subject = subject
         self.body = body
-        self.signature = 'This is an automated message from the MOBIL-ID Server.'
+        self.signature = 'This is an automated message from the MOBIL-ID Server (' + config.WEB_SERVICE_URL + ').'
 
     def get_message(self):
         return 'Subject: ' + self.tag + ' ' + self.subject + '\n\n' + self.body + '\n\n\n' + self.signature
@@ -79,6 +79,18 @@ class Email():
 def send_notification(subject: str, body: str):
     email = Email(subject, body)
     email.send()
+
+def get_log(file: str):
+    # open log file at current location
+    file = open(file, 'r+')
+
+    data = file.read()
+
+    # clear current log file
+    file.truncate(0)
+    file.close()
+    
+    return data
 
 def input_validate(id: str, pin: str):
     '''
