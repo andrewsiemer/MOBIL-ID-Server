@@ -50,9 +50,15 @@ sudo apt install git-all -y
 ```
 
 ### Download MOBIL-ID Server software
-In the current users home directory, run:
+In the current users home directory, run one of the commands below:
+#### From GitHub:
 ```sh
 git clone https://github.com/andrewsiemer/MOBIL-ID-Server
+```
+#### From BitBucket:
+To use BitBucket, you must be authorized to access the repository. Change  `<user>` with your BitBucket username and enter your password when prompted.
+```sh
+git clone https://<user>@bitbucket.org/OklahomaChristian/mobil-id-server/src/main/
 ```
 ### Create Virtual Environment
 Then create a virtual environment in the `MOBIL-ID-Server/` directory with:
