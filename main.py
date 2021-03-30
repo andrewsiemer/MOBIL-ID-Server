@@ -391,15 +391,9 @@ def batch_update_all():
     db = SessionLocal()
     pass_list = crud.get_all_passes(db)
 
-    threads = list()
     for serial_number in pass_list:
         logging.debug('Trying to update pass (' + serial_number + ')')
-        thread = threading.Thread(target=utils.update_pass, args=(db,serial_number))
-        threads.append(thread)
-        thread.start()
-
-    for index, thread in enumerate(threads):
-        thread.join()
+        utils.update_pass(db,serial_number)
 
     db.close()
     logging.info('Finished batch update proccess')
