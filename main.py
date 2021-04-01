@@ -308,6 +308,31 @@ def download(request: Request, pass_hash: str, background_tasks: BackgroundTasks
     
     return response
 
+@app.get("/not-supported", tags=["Registration"])
+def not_supported(request: Request):
+    '''
+    Returns not-supported.html webpage
+    '''
+    return templates.TemplateResponse('not-supported.html', {'request': request})
+
+@app.get("/team", tags=["Fun"])
+def team(request: Request):
+    '''
+    Returns team.html webpage
+    '''
+    return templates.TemplateResponse('team.html', {'request': request})
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc):
+    '''
+    Redirect all 404 traffic to homepage
+    '''
+    return RedirectResponse('/')
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+MOBIL-ID Back-End Web Service
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 @app.get("/scan/{pass_hash}", status_code=200, tags=["Reader"])
 async def scan(pass_hash: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     '''
@@ -322,6 +347,7 @@ async def scan(pass_hash: str, background_tasks: BackgroundTasks, db: Session = 
         response = db_pass.serial_number
         # start background task to update pass with new pass_hash
         background_tasks.add_task(utils.force_pass_update, db, response)
+        sched.add_job(utils.update_pass, 'date', run_date=str(datetime.now() + timedelta(seconds=30)), args=[db, response])
         logging.info('Pass (' + db_pass.serial_number + ') scanned successfully')
     else:
         # no matching pass found,
@@ -352,27 +378,6 @@ async def update(client: str, serial_number: str, background_tasks: BackgroundTa
         logging.debug('Client (' + client + ') notified server about update for a non-existing user')
     
     return response
-
-@app.get("/not-supported", tags=["Registration"])
-def not_supported(request: Request):
-    '''
-    Returns not-supported.html webpage
-    '''
-    return templates.TemplateResponse('not-supported.html', {'request': request})
-
-@app.get("/team", tags=["Fun"])
-def team(request: Request):
-    '''
-    Returns team.html webpage
-    '''
-    return templates.TemplateResponse('team.html', {'request': request})
-
-@app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(request: Request, exc):
-    '''
-    Redirect all 404 traffic to homepage
-    '''
-    return RedirectResponse('/')
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 Scheduled Tasks
