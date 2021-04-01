@@ -362,6 +362,8 @@ async def update(client: str, serial_number: str, background_tasks: BackgroundTa
     '''
     Client notifies server of updated user data
     '''
+    if client == 'OC':
+        utils.send_notification('YAYAYAYAYAYAY', 'We received an update message from OC! This temporary code can be deleted!')
     
     logging.debug('Client (' + client + ') notified server that ID (' + serial_number + ') has updated')
     db_pass = crud.get_pass(db, serial_number)
