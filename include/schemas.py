@@ -11,7 +11,7 @@ import pytz
 from sqlalchemy.orm import Session
 
 import include.crud as crud, include.utils as utils, config
-from include.passkit import Pass, Barcode, Generic, BarcodeFormat, Alignment, Location, IBeacon
+from include.apple.passkit import Pass, Barcode, Generic, BarcodeFormat, Alignment, Location, IBeacon
 
 class User():
     '''
