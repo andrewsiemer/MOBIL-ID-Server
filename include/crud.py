@@ -96,7 +96,7 @@ def add_pass(db: Session, user: User):
     db_pass.pass_type = config.PASS_TYPE_IDENTIFIER
     db_pass.serial_number = user.id
     db_pass.last_update = datetime.utcnow().replace(microsecond=0)
-    db_pass.pass_hash = utils.unique_hash(db, 32)
+    db_pass.pass_hash = utils.unique_pass_hash(db, 32)
     db_pass.auth_token = secrets.token_urlsafe(32)
     db_pass.name = user.name
     db_pass.photo_URL = user.photo_URL
@@ -138,7 +138,7 @@ def update_db_pass(db: Session, user: User):
     db_pass.pass_type = config.PASS_TYPE_IDENTIFIER
     db_pass.serial_number = user.id
     db_pass.last_update = datetime.utcnow().replace(microsecond=0)
-    db_pass.pass_hash = utils.unique_hash(db, 32)
+    db_pass.pass_hash = utils.unique_pass_hash(db, 32)
     db_pass.name = user.name
     db_pass.photo_URL = user.photo_URL
     db_pass.eagle_bucks = user.eagle_bucks
@@ -153,7 +153,7 @@ def update_db_pass(db: Session, user: User):
 
 def update_hash(db: Session, serial_number: str):
     db_pass = db.query(Pass).filter(Pass.serial_number==serial_number).first()
-    db_pass.pass_hash = utils.unique_hash(db, 32)
+    db_pass.pass_hash = utils.unique_pass_hash(db, 32)
     db_pass.last_update = datetime.utcnow().replace(microsecond=0)
     db.commit()
     Pkpass(db, serial_number)
