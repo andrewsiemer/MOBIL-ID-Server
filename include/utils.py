@@ -108,7 +108,7 @@ def input_validate(id: str, pin: str):
     
     return valid
 
-def unique_hash(db: Session, num_bytes: int):
+def unique_pass_hash(db: Session, num_bytes: int):
     '''
     Makes sure hash is unique in the database
     '''
