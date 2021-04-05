@@ -449,3 +449,7 @@ def reader_post(request: Request, idNum: str = Form(...), db: Session = Depends(
         {'request': request, 'name': user.name, 'id_num': user.serial_number, 'photo_URL': user.photo_URL})
     
     return response
+
+@app.get("/jwt/{idNum}")
+def test_google(request: Request, idNum: str, db: Session = Depends(get_db)):
+    h = schemas.JWT(db, idNum)
