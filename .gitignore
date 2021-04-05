@@ -5,7 +5,7 @@ pyvenv.cfg
 
 # Configuration Files
 config.py
-certificates/*.pem
+certificates/*
 
 # Local Test Database
 mobil-id.db
