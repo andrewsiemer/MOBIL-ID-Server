@@ -1,6 +1,3 @@
-'''
-jwt.py: 
-'''
 import time
 
 # for jwt signing. see https://google-auth.readthedocs.io/en/latest/reference/google.auth.jwt.html#module-google.auth.jwt

@@ -1,6 +1,3 @@
-'''
-services.py: 
-'''
 from enum import Enum
 
 import include.google.restMethods as restMethods
@@ -47,7 +44,7 @@ class VerticalType(Enum):
 #############################
 def handleGetCallStatusCode(getCallResponse, idType, id, checkClassId=None):
   if getCallResponse.status_code == 200:  # id resource exists for this issuer account
-    print('%sId: (%s) already exists. %s' % (idType, id, EXISTS_MESSAGE))
+    #print('%sId: (%s) already exists. %s' % (idType, id, EXISTS_MESSAGE))
 
     # for object get, do additional check
     if idType == "object":
@@ -56,7 +53,7 @@ def handleGetCallStatusCode(getCallResponse, idType, id, checkClassId=None):
       if classIdOfObjectId != checkClassId and checkClassId is not None:
         raise ValueError('the classId of inserted object is (%s). It does not match the target classId (%s). The saved object will not have the class properties you expect.' % (classIdOfObjectId, checkClassId))
   elif getCallResponse.status_code == 404:  # id resource does not exist for this issuer account
-    print('%sId: (%s) does not exist. %s' % (idType, id , NOT_EXIST_MESSAGE) )
+    pass #print('%sId: (%s) does not exist. %s' % (idType, id , NOT_EXIST_MESSAGE) )
   else:
     raise ValueError('Issue with getting %s.' % (idType), getCallResponse.text)
 
@@ -76,10 +73,9 @@ def handleGetCallStatusCode(getCallResponse, idType, id, checkClassId=None):
 #############################
 def handleInsertCallStatusCode(insertCallResponse, idType, id,objectResourcePayload, checkClassId=None, verticalType=None):
   if insertCallResponse.status_code == 200:
-    print('%sId (%s) insertion success!\n' % (idType, id) )
+    pass #print('%sId (%s) insertion success!\n' % (idType, id) )
   elif insertCallResponse.status_code == 409:  # id resource exists for this issuer account
-    print('%sId: (%s) already exists. %s' % (idType, id, EXISTS_MESSAGE))
-    
+    #print('%sId: (%s) already exists. %s' % (idType, id, EXISTS_MESSAGE))
     
     # for object insert, do additional check
     if idType == "object":
@@ -110,12 +106,12 @@ def makeSkinnyJwt(verticalType, classId, objectId, user):
     # get class definition and object definition
     classResourcePayload, objectResourcePayload = getClassAndObjectDefinitions(verticalType, classId, objectId, classResourcePayload, objectResourcePayload, user)
 
-    print('\nMaking REST call to insert class: (%s)' % (classId))
+    #print('\nMaking REST call to insert class: (%s)' % (classId))
     # make authorized REST call to explicitly insert class into Google server.
     # if this is successful, you can check/update class definitions in Merchant Center GUI: https://pay.google.com/gp/m/issuer/list
     classResponse = restMethods.insertClass(verticalType, classResourcePayload)
 
-    print('\nMaking REST call to insert object')
+    #print('\nMaking REST call to insert object')
     # make authorized REST call to explicitly insert object into Google server.
     objectResponse = restMethods.insertObject(verticalType, objectResourcePayload)
 
@@ -124,7 +120,7 @@ def makeSkinnyJwt(verticalType, classId, objectId, user):
     handleInsertCallStatusCode(classResponse, "class", classId, objectResourcePayload, None, None)
 
     # check object insert response. Will print out if object insert succeeds or not. Throws error if object resource is malformed, or if existing objectId's classId does not match the expected classId
-    handleInsertCallStatusCode(objectResponse, "object", objectId,objectResourcePayload, classId, verticalType)
+    handleInsertCallStatusCode(objectResponse, "object", objectId, objectResourcePayload, classId, verticalType)
 
     # put into JSON Web Token (JWT) format for Google Pay API for Passes
     googlePassJwt = jwt.googlePassJwt()

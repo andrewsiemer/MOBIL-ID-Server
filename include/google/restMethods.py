@@ -1,6 +1,3 @@
-'''
-restMethods.py: 
-'''
 # For OAuth 2.0
 from google.oauth2 import service_account # pip install google-auth
 # HTTP client For making REST API call with google-auth package

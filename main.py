@@ -251,9 +251,11 @@ def submit(request: Request, idNum: str = Form(...), idPin: str = Form(...), db:
                     db_pass = crud.add_pass(db, user)
                     # create pass for given user
                     schemas.Pkpass(db, db_pass.serial_number)
+                    google = schemas.JWT(db, db_pass.serial_number)
+
                     # respond with success page with Add to Apple Wallet button
                     response = templates.TemplateResponse('success.html', \
-                        {'request': request, 'pass_hash': db_pass.pass_hash})
+                        {'request': request, 'pass_hash': db_pass.pass_hash, 'jwt': google.get_link()})
                     logging.info('Pass created for ID (' + entered_id_num + ')')
                 else:
                     # user not valid through OC,
@@ -263,10 +265,12 @@ def submit(request: Request, idNum: str = Form(...), idPin: str = Form(...), db:
                         {'request': request, 'feedback': 'The ID Number and ID Card Pin Number entered do not match. Please try again.', 'entered_id': entered_id_num})
                     logging.debug('Registration unsuccessful for ID (' + entered_id_num + ') with Pin (' +  entered_id_pin + ')')
             elif db_pass.id_pin == entered_id_pin:
+                google = schemas.JWT(db, db_pass.serial_number)
+
                 # pass for user already exists and login is correct,
                 # respond with success page with Add to Apple Wallet button
                 response = templates.TemplateResponse('success.html', \
-                    {'request': request, 'pass_hash': db_pass.pass_hash})
+                    {'request': request, 'pass_hash': db_pass.pass_hash, 'jwt': google.get_link()})
                 logging.debug('Existing user successful request for ID (' + entered_id_num + ')')
             else:
                 # pass for user already exists but login is incorrect,
@@ -361,10 +365,7 @@ async def scan(pass_hash: str, background_tasks: BackgroundTasks, db: Session = 
 async def update(client: str, serial_number: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     '''
     Client notifies server of updated user data
-    '''
-    if client == 'OC':
-        utils.send_notification('YAYAYAYAYAYAY', 'We received an update message from OC! This temporary code can be deleted!')
-    
+    '''    
     logging.debug('Client (' + client + ') notified server that ID (' + serial_number + ') has updated')
     db_pass = crud.get_pass(db, serial_number)
     if db_pass:
@@ -449,7 +450,3 @@ def reader_post(request: Request, idNum: str = Form(...), db: Session = Depends(
         {'request': request, 'name': user.name, 'id_num': user.serial_number, 'photo_URL': user.photo_URL})
     
     return response
-
-@app.get("/jwt/{idNum}")
-def test_google(request: Request, idNum: str, db: Session = Depends(get_db)):
-    h = schemas.JWT(db, idNum)

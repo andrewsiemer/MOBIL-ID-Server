@@ -1,10 +1,3 @@
-'''
-resourceDefinitions.py: 
-'''
-import datetime
-
-from google.oauth2 import service_account # pip install google-auth
-
 def makeLoyaltyClassResource(classId):
   # Define the resource representation of the Class
   # values should be from your DB/services; here we hardcode information
@@ -107,12 +100,12 @@ def makeLoyaltyObjectResource(classId, objectId, user):
     "barcode": {
         "alternateText": user.serial_number,
         "type": 'QR_CODE',
-        "value": user.serial_number
+        "value": user.pass_hash
     },
         "heroImage": {
             "kind": "walletobjects#image",
             "sourceUri": {
-                "uri": "https://i.imgur.com/I6p54as.png",
+                "uri": "/static/heroImg/" + user.serial_number + ".png",
                 "image":  'asdasdas',
                 "label": "heroImg"
             }

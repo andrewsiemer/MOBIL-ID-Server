@@ -9,7 +9,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session, load_only
 
 import include.utils as utils, config
-from include.schemas import User, Pkpass
+from include.schemas import User, Pkpass, JWT
 from include.models import Device, Pass, Registration
 
 def get_device(db: Session, device_id: str):
@@ -150,6 +150,7 @@ def update_db_pass(db: Session, user: User):
     db_pass.mailbox = user.mailbox
     db.commit()
     Pkpass(db, user.id)
+    JWT(db, user.id)
 
 def update_hash(db: Session, serial_number: str):
     db_pass = db.query(Pass).filter(Pass.serial_number==serial_number).first()
@@ -157,3 +158,4 @@ def update_hash(db: Session, serial_number: str):
     db_pass.last_update = datetime.utcnow().replace(microsecond=0)
     db.commit()
     Pkpass(db, serial_number)
+    JWT(db, serial_number)

@@ -2,9 +2,8 @@
 schemas.py: Classes for verifying users & creating user passes
 '''
 
-import uuid # std library for unique identifier generation
 import subprocess, json, secrets, requests, time
-from PIL import Image
+from PIL import Image, ImageFont, ImageDraw
 from io import BytesIO
 from datetime import datetime, timedelta
 import pytz
@@ -180,10 +179,23 @@ class JWT():
         # parse User data into reusable variables
         user_pass = crud.get_pass(db, serial_number)
 
-        objectUid = str(services.VerticalType.LOYALTY).split('.')[1] + '_OBJECT_'+ str(serial_number)
+        # Add user photo with different device resolution support
+        response = requests.get(user_pass.photo_URL)
+        img = Image.open(BytesIO(response.content))
+        img = img.resize((113, 150), Image.ANTIALIAS)
+        hero_image = Image.new(img.mode, (600, 200), (128, 20, 41))
+        hero_image.paste(img, (450, 25))
+
+        draw = ImageDraw.Draw(hero_image)
+        font = ImageFont.truetype("include/google/Roboto-Regular.ttf", 34)
+        draw.text((37, 84), user_pass.name, (255, 255, 255), font=font)
+
+        hero_image.save('static/heroImg/' + serial_number + '.png')
+
+        objectUid = str(services.VerticalType.LOYALTY).split('.')[1] + '_OBJECT_' + str(serial_number)
         # check Reference API for format of "id" (https://developers.google.com/pay/passes/reference/v1/).
         objectId = '%s.%s' % (config.ISSUER_ID, objectUid)
-        objectJwt = services.makeSkinnyJwt(services.VerticalType.LOYALTY, config.CLASS_ID, objectId, user_pass)
+        self.objectJwt = services.makeSkinnyJwt(services.VerticalType.LOYALTY, config.CLASS_ID, objectId, user_pass)
 
-        if not objectJwt:
-            print('Here is pass:\n%s%s' % (config.SAVE_LINK, objectJwt.decode('UTF-8')))
+    def get_link(self):
+        return config.SAVE_LINK + self.objectJwt.decode('UTF-8')

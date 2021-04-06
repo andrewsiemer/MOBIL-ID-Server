@@ -1,13 +1,9 @@
 <!doctype html>
 
 <script language=javascript>
-  if (!((navigator.userAgent.match(/Macintosh/i)) || (navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)))) {
-     location.replace("/not-supported");
-  }
-
 	function login(){
 		document.getElementById('submit').disabled = true;
-    document.getElementById('submit').innerHTML = "<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>"
+    document.getElementById('submit').innerHTML = "<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>";
     document.getElementById('idNum').readOnly = true;
     document.getElementById('idPin').readOnly = true;
 	}
@@ -48,7 +44,6 @@
       {% endif %}
       
       <button class="btn btn-lg btn-primary btn-block" id="submit" type="submit">Request ID</button>
-
 
       <p><br>Requires iOS 10.0 and watchOS 2.0 or later. Compatible with iPhone and iPod touch.</p>
       <a href='team'><p class="mt-5 mb-3 text-muted">&copy; <script>document.write(new Date().getFullYear())</script> Oklahoma Christian University</p></a>

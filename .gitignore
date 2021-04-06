@@ -14,6 +14,7 @@ mobil-id.db
 # Created Passes
 passes/*.pkpass
 passes/*.pass
+static/heroImg/*
 
 # macOS & Cache Files
 .DS_Store
