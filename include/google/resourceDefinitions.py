@@ -142,7 +142,7 @@ def makeLoyaltyObjectResource(classId, objectId, user):
         {
             "columns": [{
                 "label": "Mailbox Number",
-                "value": user.mailbox
+                "value": str(user.mailbox)
             }]
         }],
         "showLastUpdateTime": "true"
