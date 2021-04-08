@@ -81,7 +81,7 @@ class User():
         try:
             self.mailbox = self.data['Mailbox']
         except:
-            self.mailbox = 'None'
+            self.mailbox = None
     
     def is_valid(self):
         # returns if the given user data is valid User
