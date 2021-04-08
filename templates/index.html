@@ -30,17 +30,17 @@
       {% if feedback != null%}
       <div class="alert alert-danger" role="alert">{{ feedback }}</div>
       {% elif beta != null%}
-      <div class="alert alert-dark" role="alert">{{ beta }} <a href="https://forms.gle/2QcH2eCrbnihqrWx6" class="alert-link">Apply Here</a></div>
+      <div class="alert alert-dark" role="alert">{{ beta }}<a href="https://forms.gle/2QcH2eCrbnihqrWx6" class="alert-link">Apply Here</a></div>
       {% endif %}
       <label for="idNum" class="sr-only">OC ID Number</label>
       {% if entered_id == null %}
       <input type="id" pattern="[0-9]*" id="idNum" name="idNum" class="form-control" placeholder="ID Number" required autofocus>
       <label for="idPin" class="sr-only">ID Card Pin #</label>
-      <input type="password" pattern="[0-9]*" inputmode="numeric" id="idPin" name="idPin" class="form-control" placeholder="ID Card Pin #" required>
+      <input type="password" pattern="[0-9]*" inputmode="numeric" id="idPin" name="idPin" class="form-control" placeholder="ID Card Pin Number (myOC)" required>
       {% else %}
       <input type="id" pattern="[0-9]*" id="idNum" name="idNum" class="form-control" value="{{ entered_id }}" required>
       <label for="idPin" class="sr-only">ID Card Pin #</label>
-      <input type="password" pattern="[0-9]*" inputmode="numeric" id="idPin" name="idPin" class="form-control" placeholder="ID Card Pin #" required autofocus>
+      <input type="password" pattern="[0-9]*" inputmode="numeric" id="idPin" name="idPin" class="form-control" placeholder="ID Card Pin Number (myOC)" required autofocus>
       {% endif %}
       
       <button class="btn btn-lg btn-primary btn-block" id="submit" type="submit">Request ID</button>
