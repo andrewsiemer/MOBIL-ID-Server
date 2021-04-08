@@ -351,7 +351,6 @@ async def scan(pass_hash: str, background_tasks: BackgroundTasks, db: Session = 
         response = db_pass.serial_number
         # start background task to update pass with new pass_hash
         background_tasks.add_task(utils.force_pass_update, db, response)
-        sched.add_job(utils.update_pass, 'date', run_date=str(datetime.now() + timedelta(seconds=30)), args=[db, response])
         logging.info('Pass (' + db_pass.serial_number + ') scanned successfully')
     else:
         # no matching pass found,
