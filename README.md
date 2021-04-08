@@ -89,6 +89,7 @@ pip3 install -r requirements.txt
 
 ### Getting the Certificates
 1) Get Apple WWDR Certificate
+
 * Certificate is available at: http://developer.apple.com/certificationauthority/AppleWWDRCA.cer
 * Convert the DER file it into a PEM:
 ```shell
@@ -97,6 +98,7 @@ pip3 install -r requirements.txt
 * Move file to `certificates/`
 
 2) Get a Pass Type Id
+
 * Login to your Apple Developer Account 
 * Navigate to Certificates, Identifiers & Profiles -> Identifiers -> (+) -> Pass Type IDs
 * Enter a Description & Identifier then click 'Register'
