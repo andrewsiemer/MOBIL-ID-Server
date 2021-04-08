@@ -88,29 +88,34 @@ pip3 install -r requirements.txt
 ```
 
 ### Getting the Certificates
-
-> This step can be skipped if the certificates have already been provided.
-
 1) Get Apple WWDR Certificate
 * Certificate is available at: http://developer.apple.com/certificationauthority/AppleWWDRCA.cer
-* Convert it into a ".pem" file:
+* Convert the DER file it into a PEM:
 ```shell
 	$ openssl x509 -inform der -in AppleWWDRCA.cer -out wwdr.pem
 ```
 * Move file to `certificates/`
 
 2) Get a Pass Type Id
-* Visit the iOS Provisioning Portal -> Pass Type IDs -> New Pass Type ID
-* Select pass type id -> Configure (Follow steps and download generated pass.cer file)
-* Import downloaded certificate into Keychain Access on your Mac.
-* Export the certificate from Keychain Access into a `.pem` file
-* Move file to `certificates/` and name it `pass.pem`
+* Login to your Apple Developer Account 
+* Navigate to Certificates, Identifiers & Profiles -> Identifiers -> (+) -> Pass Type IDs
+* Enter a Description & Identifier then click 'Register'
+* Next, under 'Identifiers' click on the one you just created (pass.xxx.xxx)
+* Under 'Production Certificates' -> 'Create Certificate'
+* Upload a Certificate Signing Request (Follow the 'Learn more' link for help)
+* Finally, click Continue -> Download
+* Convert the DER file it into a PEM:
+```shell
+	$ openssl x509 -inform der -in AppleWWDRCA.cer -out wwdr.pem
+```
+* Move file to `certificates/`
 
 > Note that if any certificate is expired, you won't be able to create a pass.
 
 ### Configuring the Server
 First, we need to change the file named `config_sample.py` to `config.py`.
 Now open `config.py` and set these variables:
+
 * DEBUG - *bool.* toggles logging, `/docs` test endpoint, and `pash_hash` viability
 * PASS_TYPE_IDENTIFIER - *str.* the Pass Type ID from step 2 above
 * TEAM_IDENTIFIER - *str.* your Team ID found on developer.apple.com
@@ -151,6 +156,7 @@ sudo ufw default deny incoming
 sudo ufw allow ssh
 sudo ufw allow http/tcp
 sudo ufw allow https/tcp
+```
 
 Then, we will enable our configuration with:
 ```sh
