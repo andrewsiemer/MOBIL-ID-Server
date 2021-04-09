@@ -312,13 +312,6 @@ def download(request: Request, pass_hash: str, background_tasks: BackgroundTasks
     
     return response
 
-@app.get("/not-supported", tags=["Registration"])
-def not_supported(request: Request):
-    '''
-    Returns not-supported.html webpage
-    '''
-    return templates.TemplateResponse('not-supported.html', {'request': request})
-
 @app.get("/team", tags=["Fun"])
 def team(request: Request):
     '''

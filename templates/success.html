@@ -5,7 +5,7 @@
     if ((navigator.userAgent.match(/Macintosh/i)) || (navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i))) {
       document.getElementById("device").innerHTML = "<form class='form-signin' action='/download/{{ pass_hash }}' method='post'><p>To add this pass to Wallet, open this web page on your iPhone or iPod touch.</p><input type='image' type='submit' src='{{ url_for('static', path='Add_to_Apple_Wallet.svg') }}' alt='' width='200' draggable='false' onContextMenu='return false;'></form>";
     } else { 
-      document.getElementById("device").innerHTML = "<a href='{{ jwt }}'><input type='image' src='{{ url_for('static', path='Add_to_Google_Pay.svg') }}' alt='' width='300' draggable='false' onContextMenu='return false;'></a>";
+      document.getElementById("device").innerHTML = "<p>To add this pass to Google Pay, click the 'Save to phone' button.</p><a href='{{ jwt }}'><input type='image' src='{{ url_for('static', path='Add_to_Google_Pay.svg') }}' alt='' width='300' draggable='false' onContextMenu='return false;'></a>";
     }
   }
 </script>
