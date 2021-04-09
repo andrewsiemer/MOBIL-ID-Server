@@ -27,9 +27,9 @@ The MOBIL-ID Server is a Python web service responsible for creating, deploying,
 
 > You should also always use `sudo apt update && apt upgrade` before starting the installation process to make sure your system packages are up to date.
 
-Install Python 3.8 using:
+Install Python 3 using:
 ```sh
-sudo apt-get install python3.8
+sudo apt-get install python3
 ```
 
 Install PIP using:
