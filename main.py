@@ -24,8 +24,14 @@ import include.crud as crud, include.utils as utils, include.models as models, i
 from include.database import SessionLocal, engine
 
 LOG_FILE = 'app.log'
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+f_handler = logging.FileHandler(LOG_FILE)
+f_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+logger.addHandler(f_handler)
+
 if config.DEBUG:
-    logging.basicConfig(filename=LOG_FILE, filemode='a', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%-I:%M:%S %p')
+    logger.setLevel(logging.DEBUG)
     app = FastAPI(
         title="MOBIL-ID Server",
         description="The MOBIL-ID Server is a web service responsible for creating, deploying, and updating passes. It tracks the pass’s complete lifecycle. When a user requests a pass, the server gets the user's data from OC’s database, creates a new pass, and signs it before delivering it to the user. It keeps a log of every pass it creates. When a user adds the pass to Apple Wallet, the pass will send a registration request to our server. The server will log the device id and pass relationship. When users data is changed, the MOBIL-ID server then knows what device to send the update push notification to. If a user deletes a pass of their device, the server will receive a request to delete the pass and it will be deleted from the server’s database and no longer receive updates.",
@@ -43,7 +49,6 @@ if config.DEBUG:
         redoc_url=None
     )
 else:
-    logging.basicConfig(filename=LOG_FILE, filemode='a', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', )
     app = FastAPI(docs_url=None,redoc_url=None)
 
 models.Base.metadata.create_all(bind=engine)
@@ -71,7 +76,7 @@ def register(request: Request, body: dict, device_id: str, pass_type: str, seria
     auth_token = str(request.headers.get('Authorization')).replace('ApplePass ', '')
     push_token = str(body['pushToken'])
 
-    logging.debug('Pass registration request from device (' + device_id + ')')
+    logger.debug('Pass registration request from device (' + device_id + ')')
     if crud.get_pass(db, serial_number, auth_token):
         # if pass exists in database with same serial number & matching auth_token
         if not crud.get_device(db, device_id): 
@@ -83,16 +88,16 @@ def register(request: Request, body: dict, device_id: str, pass_type: str, seria
             crud.add_registration(db, device_id, serial_number)
             # if registration succeeds, returns HTTP status 201.
             response = Response(status_code=201)
-            logging.info('New user registered (' + serial_number + ')')
+            logger.info('New user registered (' + serial_number + ')')
         else:
             # if the serial number is already registered for 
             # this device, returns HTTP status 200.
             response = Response(status_code=200)
-            logging.debug('Existing user registered (' + serial_number + ')')
+            logger.debug('Existing user registered (' + serial_number + ')')
     else:
         # if the request is not authorized, returns HTTP status 401
         response = Response(status_code=401)
-        logging.debug('Pass registration request from device (' + device_id + ') not authorized (' + auth_token + ')')
+        logger.debug('Pass registration request from device (' + device_id + ') not authorized (' + auth_token + ')')
     
     return response
 
@@ -102,7 +107,7 @@ def get_passes(request: Request, device_id: str, pass_type: str, passesUpdatedSi
     Getting the Serial Numbers for Passes Associated with a Device
     '''
 
-    logging.debug('Device (' + device_id + ') asked for list of registered passes')
+    logger.debug('Device (' + device_id + ') asked for list of registered passes')
     if crud.get_registration_by_device(db, device_id):
         # if there is a registration for the device, 
         # get the serial numbers registered for & 
@@ -112,17 +117,17 @@ def get_passes(request: Request, device_id: str, pass_type: str, passesUpdatedSi
             # if there were matching passes, returns HTTP status 200
             # with a JSON dictionary with the following keys and value
             response = {'lastUpdated': str(last_updated), 'serialNumbers': serial_numbers}
-            logging.debug('Device (' + device_id + ') with registrations (' + str(serial_numbers) + ') was last updated at ' + str(last_updated))
+            logger.debug('Device (' + device_id + ') with registrations (' + str(serial_numbers) + ') was last updated at ' + str(last_updated))
         else:
             # if there are no matching passes, 
             # returns HTTP status 204
             response = Response(status_code=204)
-            logging.debug('Device (' + device_id + ') has no current registrations')
+            logger.debug('Device (' + device_id + ') has no current registrations')
     else:
         # if there are no matching passes, 
         # returns HTTP status 204
         response = Response(status_code=204)
-        logging.debug('Device (' + device_id + ') has no current registrations')
+        logger.debug('Device (' + device_id + ') has no current registrations')
     
     return response
 
@@ -135,7 +140,7 @@ def send_passes(request: Request, pass_type: str, serial_number: str, db: Sessio
     auth_token = str(request.headers.get('Authorization')).replace('ApplePass ', '')
     if_modified_since = request.headers.get('if-modified-since')        
 
-    logging.debug('Device asked for latest version of pass (' + serial_number + ') with authorization (' + auth_token + ')')
+    logger.debug('Device asked for latest version of pass (' + serial_number + ') with authorization (' + auth_token + ')')
 
     db_pass = crud.get_pass(db, serial_number, auth_token)
     if db_pass:
@@ -149,20 +154,20 @@ def send_passes(request: Request, pass_type: str, serial_number: str, db: Sessio
                 # force update on manual database change -> 
                 # crud.force_pass_update(db, db_pass.serial_number)
                 response = utils.get_pass_file(db, db_pass.serial_number)
-                logging.debug('Updated pass (' + serial_number + ') returned to device.')
+                logger.debug('Updated pass (' + serial_number + ') returned to device.')
             else:
                 # if the pass has not changed, return HTTP status code 304 
                 response = Response(status_code=304)
-                logging.debug('Pass (' + serial_number + ') has not changed.')
+                logger.debug('Pass (' + serial_number + ') has not changed.')
         else:
             # if device asks for pass unconditionally,
             # respond with the current pass file
             response = utils.get_pass_file(db, db_pass.serial_number)
-            logging.debug('Pass (' + serial_number + ') returned unconditionally')
+            logger.debug('Pass (' + serial_number + ') returned unconditionally')
     else:
         # if the request is not authorized, returns HTTP status 401
         response = Response(status_code=401)
-        logging.debug('Pass (' + serial_number + ') not authorized (' + auth_token + ')')
+        logger.debug('Pass (' + serial_number + ') not authorized (' + auth_token + ')')
 
     return response
 
@@ -174,7 +179,7 @@ def delete(request: Request, device_id: str, pass_type: str, serial_number: str,
 
     auth_token = str(request.headers.get('Authorization')).replace('ApplePass ', '')
 
-    logging.debug('Device (' + device_id + ') deleted pass (' + serial_number + ') with authorization (' + auth_token + ')')
+    logger.debug('Device (' + device_id + ') deleted pass (' + serial_number + ') with authorization (' + auth_token + ')')
 
     db_pass = crud.get_pass(db, serial_number, auth_token)
     if db_pass:
@@ -187,16 +192,16 @@ def delete(request: Request, device_id: str, pass_type: str, serial_number: str,
             crud.delete_device(db, device_id)
         # if disassociation succeeds, returns HTTP status 200
         response = Response(status_code=200)
-        logging.info('Pass (' + serial_number + ') deleted from device (' + device_id + ') ')
+        logger.info('Pass (' + serial_number + ') deleted from device (' + device_id + ') ')
     else:
         if config.DEBUG:
              # if in debug mode, force delete
             response = Response(status_code=200)
-            logging.debug('Delete request from device (' + device_id + ') not authorized (' + auth_token + ') but allowed (DEBUG)')
+            logger.debug('Delete request from device (' + device_id + ') not authorized (' + auth_token + ') but allowed (DEBUG)')
         else:
              # if the request is not authorized, returns HTTP status 401
             response = Response(status_code=401)
-            logging.debug('Delete request from device (' + device_id + ') not authorized (' + auth_token + ')')
+            logger.debug('Delete request from device (' + device_id + ') not authorized (' + auth_token + ')')
 
     return response
 
@@ -207,7 +212,7 @@ def log(message: dict):
     '''
     
     response = Response(status_code=200)
-    logging.info(message['logs'][0])
+    logger.info(message['logs'][0])
     
     return response
 
@@ -236,7 +241,7 @@ def submit(request: Request, idNum: str = Form(...), idPin: str = Form(...), db:
     entered_id_num = idNum
     entered_id_pin = idPin
 
-    logging.debug('Registration submitted for ID (' + entered_id_num + ') with Pin (' +  entered_id_pin + ')')
+    logger.debug('Registration submitted for ID (' + entered_id_num + ') with Pin (' +  entered_id_pin + ')')
     if entered_id_num in config.WHITELIST:    
         if utils.input_validate(entered_id_num, entered_id_pin): 
             # if user form data passes server-side validation,
@@ -256,14 +261,14 @@ def submit(request: Request, idNum: str = Form(...), idPin: str = Form(...), db:
                     # respond with success page with Add to Apple Wallet button
                     response = templates.TemplateResponse('success.html', \
                         {'request': request, 'pass_hash': db_pass.pass_hash, 'jwt': google.get_link()})
-                    logging.info('Pass created for ID (' + entered_id_num + ')')
+                    logger.info('Pass created for ID (' + entered_id_num + ')')
                 else:
                     # user not valid through OC,
                     # return login page with feedback
                     del user
                     response = templates.TemplateResponse('index.html', \
                         {'request': request, 'feedback': 'The ID Number and ID Card Pin Number entered do not match. Please try again.', 'entered_id': entered_id_num})
-                    logging.debug('Registration unsuccessful for ID (' + entered_id_num + ') with Pin (' +  entered_id_pin + ')')
+                    logger.debug('Registration unsuccessful for ID (' + entered_id_num + ') with Pin (' +  entered_id_pin + ')')
             elif db_pass.id_pin == entered_id_pin:
                 google = schemas.JWT(db, db_pass.serial_number)
 
@@ -271,23 +276,23 @@ def submit(request: Request, idNum: str = Form(...), idPin: str = Form(...), db:
                 # respond with success page with Add to Apple Wallet button
                 response = templates.TemplateResponse('success.html', \
                     {'request': request, 'pass_hash': db_pass.pass_hash, 'jwt': google.get_link()})
-                logging.debug('Existing user successful request for ID (' + entered_id_num + ')')
+                logger.debug('Existing user successful request for ID (' + entered_id_num + ')')
             else:
                 # pass for user already exists but login is incorrect,
                 # user not valid through server quick validation
                 response = templates.TemplateResponse('index.html', \
                     {'request': request, 'feedback': 'The ID Number and ID Card Pin Number entered do not match. Please try again.', 'entered_id': entered_id_num})
-                logging.debug('Registration unsuccessful for ID (' + entered_id_num + ') with Pin (' +  entered_id_pin + ')')
+                logger.debug('Registration unsuccessful for ID (' + entered_id_num + ') with Pin (' +  entered_id_pin + ')')
         else:
             # user not valid through server quick validation
             response = templates.TemplateResponse('index.html', \
                 {'request': request, 'feedback': 'The ID Number and ID Card Pin Number entered do not match. Please try again.', 'entered_id': entered_id_num})
-            logging.debug('Registration unsuccessful for ID (' + entered_id_num + ') with Pin (' +  entered_id_pin + ')')
+            logger.debug('Registration unsuccessful for ID (' + entered_id_num + ') with Pin (' +  entered_id_pin + ')')
     else:
         # entered ID num is not on whitelist
         response = templates.TemplateResponse('index.html', \
             {'request': request, 'beta': 'The beta-testing program is currently invite-only.'})
-        logging.debug('Registration unsuccessful for ID (' + entered_id_num + ') with Pin (' +  entered_id_pin + ')')
+        logger.debug('Registration unsuccessful for ID (' + entered_id_num + ') with Pin (' +  entered_id_pin + ')')
         
     return response
 
@@ -303,12 +308,12 @@ def download(request: Request, pass_hash: str, background_tasks: BackgroundTasks
         # if a pass matching the request is found,
         # returns the matching pass file
         response = utils.get_pass_file(db, db_pass.serial_number)
-        logging.info('Pass (' + db_pass.serial_number   + ') downloaded with hash (' + pass_hash + ')')
+        logger.info('Pass (' + db_pass.serial_number   + ') downloaded with hash (' + pass_hash + ')')
     else:
         # no matching pass found,
         # returns HTML status no matching data
         response = Response(status_code=204)
-        logging.debug('No pass with hash (' + pass_hash + ')')
+        logger.debug('No pass with hash (' + pass_hash + ')')
     
     return response
 
@@ -336,7 +341,7 @@ async def scan(pass_hash: str, background_tasks: BackgroundTasks, db: Session = 
     Scan event converts QR data to serial_number
     '''
 
-    logging.debug('Scan recieved for hash (' + pass_hash + ')')
+    logger.debug('Scan recieved for hash (' + pass_hash + ')')
     db_pass = crud.get_pass_by_hash(db, pass_hash)
     if db_pass:
         # if pass exists with matching pash_hash,
@@ -344,12 +349,12 @@ async def scan(pass_hash: str, background_tasks: BackgroundTasks, db: Session = 
         response = db_pass.serial_number
         # start background task to update pass with new pass_hash
         background_tasks.add_task(utils.force_pass_update, db, response)
-        logging.info('Pass (' + db_pass.serial_number + ') scanned successfully')
+        logger.info('Pass (' + db_pass.serial_number + ') scanned successfully')
     else:
         # no matching pass found,
         # returns HTML status no matching data
         response = Response(status_code=204)
-        logging.debug('Scan unsuccessful for hash (' + pass_hash + ')')
+        logger.debug('Scan unsuccessful for hash (' + pass_hash + ')')
 
     return response
 
@@ -357,20 +362,20 @@ async def scan(pass_hash: str, background_tasks: BackgroundTasks, db: Session = 
 async def update(client: str, serial_number: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     '''
     Client notifies server of updated user data
-    '''    
-    logging.debug('Client (' + client + ') notified server that ID (' + serial_number + ') has updated')
+    '''
+    logger.debug('Client (' + client + ') notified server that ID (' + serial_number + ') has updated')
     db_pass = crud.get_pass(db, serial_number)
     if db_pass:
         # if a pass exists for user,
         # start background pass update task
         background_tasks.add_task(utils.update_pass, db, serial_number)
         response = Response(status_code=200)
-        logging.info('Pass (' + serial_number + ') updated by client (' + client + ') request')
+        logger.info('Pass (' + serial_number + ') updated by client (' + client + ') request')
     else:
         # no matching pass found,
         # returns HTML status no matching data
         response = Response(status_code=204)
-        logging.debug('Client (' + client + ') notified server about update for a non-existing user')
+        logger.debug('Client (' + client + ') notified server about update for a non-existing user')
     
     return response
 
@@ -386,17 +391,17 @@ def batch_update_all():
     '''
     Updates every pass in database at midnight each day
     '''
-    logging.info('Starting batch update proccess')
+    logger.info('Starting batch update proccess')
 
     db = SessionLocal()
     pass_list = crud.get_all_passes(db)
 
     for serial_number in pass_list:
-        logging.debug('Trying to update pass (' + serial_number + ')')
+        logger.debug('Trying to update pass (' + serial_number + ')')
         utils.update_pass(db,serial_number)
 
     db.close()
-    logging.info('Finished batch update proccess')
+    logger.info('Finished batch update proccess')
 
 @sched.scheduled_job('interval', start_date=str(datetime.now().replace(hour=7, minute=0, second=0, microsecond=0)), days=1)
 def morning_brief():
