@@ -115,20 +115,15 @@ openssl x509 -inform der -in AppleWWDRCA.cer -out wwdr.pem
     * Open Keychain Access -> Locate the pass certificate (under the login keychain) -> Right-click the pass -> Export
     * Make sure the File Format is set to `Personal Information Exchange (.p12)` and export to a convenient location
 	* Write down the password used to encrypt the file
-	
 	> You must set a password for the PEM file or you'll get errors when attempt to generate Apple pass files
-
 * Generate the necessary certificate/key PEM file
     * Open Terminal and navigate to the folder where you exported the p12 file
     * Generate the pass PEM file:
-
 	```sh
 	openssl pkcs12 -in "Certificates.p12" -clcerts -out pass.pem
 	```
-
 	* Enter the password you just created when exporting to p12
 * Move file to `certificates/`
-
 > If any certificate is expired, you won't be able to create a pass
 
 ### Configuring the Server
@@ -349,7 +344,7 @@ sudo supervisorctl reload
 
 ---
 
-## Reference Links
+## References
 ### FastAPI
 * [First Steps](https://fastapi.tiangolo.com/tutorial/first-steps/) - basic web service functionality
 * [Templates](https://fastapi.tiangolo.com/advanced/templates/) - serve custom webpages to user
