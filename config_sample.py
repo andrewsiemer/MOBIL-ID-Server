@@ -31,8 +31,8 @@ SCOPES = ['https://www.googleapis.com/auth/wallet_object.issuer']
 EMAIL_PORT = 465  # For SSL
 SMTP_SERVER = 'smtp.gmail.com'
 SENDER_EMAIL = ''
-RECEIVER_EMAIL = ['',] 
 EMAIL_PASSWORD = ''
+RECEIVER_EMAIL = ['',] 
 
 # Beta Testing
 WHITELIST = ['',]

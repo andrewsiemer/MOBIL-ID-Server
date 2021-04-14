@@ -144,21 +144,21 @@ Now open `config.py` and set these variables:
 * PEM_PASSWORD - *str.* password used when exporting the cert key
 * WWDR_CERTIFICATE_PATH - *str.* path to WWDR cert (should be `'certificates/wwdr.pem'`)
 * ISSUER_ID - *str.* identifier of Google Pay API for Passes Merchant Center
-* SAVE_LINK - *str.* `'https://pay.google.com/gp/v/save/'`
-* VERTICAL_TYPE - *str.* `'VerticalType.LOYALTY'`
-* CLASS_ID - *str.* 
-* SERVICE_ACCOUNT_EMAIL_ADDRESS - *str.* 
+* SAVE_LINK - *str.* (default: `'https://pay.google.com/gp/v/save/'`)
+* VERTICAL_TYPE - *str.* (default: `'VerticalType.LOYALTY'`)
+* CLASS_ID - *str.* the created Class ID from Google Developer portal
+* SERVICE_ACCOUNT_EMAIL_ADDRESS - *str.* Google Developer service account email address
 * SERVICE_ACCOUNT_FILE - *str.* path to Google credential cert (should be `'certificates/...json'`)
-* ORIGINS - *list* `[WEB_SERVICE_URL]`
-* AUDIENCE - *str.* `'google'`
-* JWT_TYPE - *str.*  `'savetoandroidpay'`
-* SCOPES - *list* ['https://www.googleapis.com/auth/wallet_object.issuer']
-* EMAIL_PORT - *int* 465  # For SSL
-* SMTP_SERVER - *str.* `'smtp.gmail.com'`
-* SENDER_EMAIL - *str.* 
-* RECEIVER_EMAIL - *list* ['',]
-* EMAIL_PASSWORD - *str.* 
-* WHITELIST - *list* ['',]
+* ORIGINS - *list* (default: `[WEB_SERVICE_URL]`)
+* AUDIENCE - *str.* (default: `'google'`)
+* JWT_TYPE - *str.* (default: `'savetoandroidpay'`)
+* SCOPES - *list* (default: `['https://www.googleapis.com/auth/wallet_object.issuer']`)
+* EMAIL_PORT - *int* email port for ssl (default: `465`)
+* SMTP_SERVER - *str.* smtp server address of server email account (default: `'smtp.gmail.com'`)
+* SENDER_EMAIL - *str.* server email account login
+* EMAIL_PASSWORD - *str.* password to server email account
+* RECEIVER_EMAIL - *list* contains receiver email addresses as strings
+* WHITELIST - *list* contains whitelisted ID numbers as strings
 
 ### Start Development Server
 To start server on your local network include the host tag with your ip address.
