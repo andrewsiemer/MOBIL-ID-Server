@@ -1,4 +1,15 @@
 <!doctype html>
+
+<script language=javascript>
+  function myFunction() {
+    if ((navigator.userAgent.match(/Macintosh/i)) || (navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i))) {
+      document.getElementById("device").innerHTML = "<form class='form-signin' action='/download/{{ pass_hash }}' method='post'><p>To add this pass to Wallet, open this web page on your iPhone or iPod touch.</p><input type='image' type='submit' src='{{ url_for('static', path='Add_to_Apple_Wallet.svg') }}' alt='' width='200' draggable='false' onContextMenu='return false;'></form>";
+    } else { 
+      document.getElementById("device").innerHTML = "<p>To add this pass to Google Pay, click the 'Save to phone' button.</p><a href='{{ jwt }}'><input type='image' src='{{ url_for('static', path='Add_to_Google_Pay.svg') }}' alt='' width='300' draggable='false' onContextMenu='return false;'></a>";
+    }
+  }
+</script>
+
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -6,16 +17,17 @@
     <link rel="icon" type="image/png" href="{{ url_for('static', path='favicon.ico') }}"/>
     <link rel="apple-touch-icon" href="{{ url_for('static', path='apple-touch-icon.png') }}"/>
     <link href="{{ url_for('static', path='css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', path='css/signin.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='css/success.css') }}" rel="stylesheet">
     <title>Add to Apple Wallet</title>
   </head>
 
-  <body class="text-center">
-    <form class="form-signin" action="/download/{{ pass_hash }}" method="post">
+  <body class="text-center" onload="myFunction()">
+    <div class="area">
       <h1 class="h3 mb-3 font-weight-normal">Your ID is ready!</h1>
-      <p>To add this pass to Wallet, open this web page on your iPhone or iPod touch.</p>
-      <input type="image" src="{{ url_for('static', path='Add_to_Apple_Wallet.svg') }}" alt="" width="200" draggable="false" onContextMenu="return false;">
+
+      <div id="device"></div>
+
       <p class="mt-5 mb-3 text-muted">&copy; <script>document.write(new Date().getFullYear())</script> Oklahoma Christian University</p>
-    </form>
+    </div>
   </body>
 </html>

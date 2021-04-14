@@ -5,7 +5,7 @@ pyvenv.cfg
 
 # Configuration Files
 config.py
-certificates/*.pem
+certificates/*
 
 # Local Test Database
 mobil-id.db
@@ -14,6 +14,7 @@ mobil-id.db
 # Created Passes
 passes/*.pkpass
 passes/*.pass
+static/heroImg/*
 
 # macOS & Cache Files
 .DS_Store
