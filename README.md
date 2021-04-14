@@ -47,7 +47,7 @@ Install Git using:
 sudo apt install git-all -y
 ```
 
-### Download MOBIL-ID Server software
+### Download MOBIL-ID Server Software
 In the current users home directory, run one of the commands below:
 #### From GitHub:
 ```sh
@@ -78,7 +78,7 @@ sudo apt-get install build-essential libssl-dev libffi-dev python-dev
 
 ### Update PIP
 ```sh
-pip install --upgrade --force-reinstall pip virtualenv
+python3 -m pip install --upgrade pip
 ```
 
 ### Install PIP Requirements
@@ -93,7 +93,7 @@ pip3 install -r requirements.txt
 * Certificate is available at: http://developer.apple.com/certificationauthority/AppleWWDRCA.cer
 * Convert the DER file it into a PEM:
 ```shell
-	$ openssl x509 -inform der -in AppleWWDRCA.cer -out wwdr.pem
+openssl x509 -inform der -in AppleWWDRCA.cer -out wwdr.pem
 ```
 * Move file to `certificates/`
 
@@ -106,10 +106,20 @@ pip3 install -r requirements.txt
 * Under 'Production Certificates' -> 'Create Certificate'
 * Upload a Certificate Signing Request (Follow the 'Learn more' link for help)
 * Finally, click Continue -> Download
-* Convert the DER file it into a PEM:
-```shell
-	$ openssl x509 -inform der -in AppleWWDRCA.cer -out wwdr.pem
-```
+
+3) Get a Pass Type Certificate
+
+* Double-click the pass file you downloaded to install it to your keychain
+* Export the pass certificate as a p12 file:
+    * Open Keychain Access -> Locate the pass certificate (under the login keychain) -> Right-click the pass -> Export
+    * Make sure the File Format is set to `Personal Information Exchange (.p12)` and export to a convenient location.
+* Generate the necessary certificate/key PEM file
+    * Open Terminal and navigate to the folder where you exported the p12 file.
+    * Generate the pass PEM file:
+	```sh
+	openssl pkcs12 -in "Certificates.p12" -clcerts -out pass.pem
+	```
+	> you must set a password for the key pem file or you'll get errors when attempt to generate the pkpass file.
 * Move file to `certificates/`
 
 > Note that if any certificate is expired, you won't be able to create a pass.
@@ -136,6 +146,13 @@ uvicorn main:app --reload --host <ip>
 ### View Registation Page
 ```
 http://<ip>:8000
+```
+
+### Done!
+You can now safely shutdown the development server by pressing `^C`.
+Then, leave the virtual environment with:
+```sh
+deactivate
 ```
 
 ## Deploying to a Production Environment (Linux)
@@ -251,10 +268,10 @@ sudo nano /etc/supervisor/conf.d/server.conf
 
 Inside the file paste the following lines:
 ```sh
-[program: server]
+[program:server]
 directory=/path/to/MOBIL-ID-Server
 command=/path/to/MOBIL-ID-Server/bin/gunicorn -w <num-workers> -k uvicorn.workers.UvicornWorker main:app
-user=admin
+user=root
 autostart=true
 autorestart=true
 stopasgroup=true
@@ -264,6 +281,9 @@ stdout_logfile=/var/log/server/server.out.log
 ```
 
 Then, change `<num-workers>` to the number of available processors the computer has plus one. Change the `/path/to/` to the actual path to the downloaded software.
+
+
+Save and exit the file using `^X` then type `y` and click your `enter/return` key.
 
 Create the server log files with:
 ```sh
@@ -281,13 +301,30 @@ sudo supervisorctl reload
 Your server should now be available in a browser using:
 `https://<your-domain>`
 
+### Turn Off Debug Mode
+Since you are know running the server in a production environment, you should turn off debug mode.
+To do this we first need to open the server config file.
+```sh
+sudo nano /path/to/MOBIL-ID-Server/config.py
+```
+Once inside the file change the `DEBUG` flag to `False`
+
+Save and exit the file using `^X` then type `y` and click your `enter/return` key.
+
+Since we changed files in the active server, we need to reload it using:
+```sh
+sudo supervisorctl reload
+```
+
 ### Update Server
-You can update the server from the main repository using:
+You can update the server at anytime from the remote repository using:
 ```sh
 cd /path/to/MOBIL-ID-Server
 git pull
 sudo supervisorctl reload
 ```
+
+---
 
 ## Reference Links
 ### FastAPI
