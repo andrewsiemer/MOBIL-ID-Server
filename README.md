@@ -90,7 +90,8 @@ pip3 install -r requirements.txt
 ### Getting the Certificates
 1) Get Apple WWDR Certificate
 
-* Certificate is available at: http://developer.apple.com/certificationauthority/AppleWWDRCA.cer
+* Download the certificate at: http://developer.apple.com/certificationauthority/AppleWWDRCA.cer
+* Open Terminal and navigate to the folder where you downloaded the file
 * Convert the DER file it into a PEM:
 ```shell
 openssl x509 -inform der -in AppleWWDRCA.cer -out wwdr.pem
@@ -101,41 +102,63 @@ openssl x509 -inform der -in AppleWWDRCA.cer -out wwdr.pem
 
 * Login to your Apple Developer Account 
 * Navigate to Certificates, Identifiers & Profiles -> Identifiers -> (+) -> Pass Type IDs
-* Enter a Description & Identifier then click 'Register'
+	* Enter a Description & Identifier then click 'Register'
 * Next, under 'Identifiers' click on the one you just created (pass.xxx.xxx)
-* Under 'Production Certificates' -> 'Create Certificate'
-* Upload a Certificate Signing Request (Follow the 'Learn more' link for help)
-* Finally, click Continue -> Download
+	* Under 'Production Certificates' -> 'Create Certificate'
+	* Upload a Certificate Signing Request (Follow the 'Learn more' link for help)
+	* Finally, click Continue -> Download
 
 3) Get a Pass Type Certificate
 
 * Double-click the pass file you downloaded to install it to your keychain
 * Export the pass certificate as a p12 file:
     * Open Keychain Access -> Locate the pass certificate (under the login keychain) -> Right-click the pass -> Export
-    * Make sure the File Format is set to `Personal Information Exchange (.p12)` and export to a convenient location.
+    * Make sure the File Format is set to `Personal Information Exchange (.p12)` and export to a convenient location
+	* Write down the password used to encrypt the file
+	
+	> You must set a password for the PEM file or you'll get errors when attempt to generate Apple pass files
+
 * Generate the necessary certificate/key PEM file
-    * Open Terminal and navigate to the folder where you exported the p12 file.
+    * Open Terminal and navigate to the folder where you exported the p12 file
     * Generate the pass PEM file:
+
 	```sh
 	openssl pkcs12 -in "Certificates.p12" -clcerts -out pass.pem
 	```
-	> you must set a password for the key pem file or you'll get errors when attempt to generate the pkpass file.
+
+	* Enter the password you just created when exporting to p12
 * Move file to `certificates/`
 
-> Note that if any certificate is expired, you won't be able to create a pass.
+> If any certificate is expired, you won't be able to create a pass
 
 ### Configuring the Server
 First, we need to change the file named `config_sample.py` to `config.py`.
 Now open `config.py` and set these variables:
 
 * DEBUG - *bool.* toggles logging, `/docs` test endpoint, and `pash_hash` viability
+* WEB_SERVICE_URL - *str.* your domain (if running locally it will be something like 192.168.0.X:8000)
+* OC_SHARED_SECRET - *str.* shared secret with client
 * PASS_TYPE_IDENTIFIER - *str.* the Pass Type ID from step 2 above
 * TEAM_IDENTIFIER - *str.* your Team ID found on developer.apple.com
-* WEB_SERVICE_URL - *str.* your domain (if running locally it will be something like 192.168.0.X:8000)
 * PASS_TYPE_CERTIFICATE_PATH - *str.* path to Pass Type cert (should be `'certificates/pass.pem'`)
 * PEM_PASSWORD - *str.* password used when exporting the cert key
 * WWDR_CERTIFICATE_PATH - *str.* path to WWDR cert (should be `'certificates/wwdr.pem'`)
-* OC_SHARED_SECRET - *str.* shared secret with client
+* ISSUER_ID - *str.* identifier of Google Pay API for Passes Merchant Center
+* SAVE_LINK - *str.* `'https://pay.google.com/gp/v/save/'`
+* VERTICAL_TYPE - *str.* `'VerticalType.LOYALTY'`
+* CLASS_ID - *str.* 
+* SERVICE_ACCOUNT_EMAIL_ADDRESS - *str.* 
+* SERVICE_ACCOUNT_FILE - *str.* path to Google credential cert (should be `'certificates/...json'`)
+* ORIGINS - *list* `[WEB_SERVICE_URL]`
+* AUDIENCE - *str.* `'google'`
+* JWT_TYPE - *str.*  `'savetoandroidpay'`
+* SCOPES - *list* ['https://www.googleapis.com/auth/wallet_object.issuer']
+* EMAIL_PORT - *int* 465  # For SSL
+* SMTP_SERVER - *str.* `'smtp.gmail.com'`
+* SENDER_EMAIL - *str.* 
+* RECEIVER_EMAIL - *list* ['',]
+* EMAIL_PASSWORD - *str.* 
+* WHITELIST - *list* ['',]
 
 ### Start Development Server
 To start server on your local network include the host tag with your ip address.
