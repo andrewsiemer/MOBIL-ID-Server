@@ -73,7 +73,7 @@ source bin/activate
 ### Install Dependencies
 Now that we are inside the environment we need to install our dependencies using:
 ```sh
-sudo apt-get install libssl-dev swig python3-dev gcc build-essential libssl-dev libffi-dev python-dev
+sudo apt-get install build-essential libssl-dev libffi-dev python-dev
 ```
 
 ### Update PIP
@@ -123,6 +123,7 @@ Now open `config.py` and set these variables:
 * TEAM_IDENTIFIER - *str.* your Team ID found on developer.apple.com
 * WEB_SERVICE_URL - *str.* your domain (if running locally it will be something like 192.168.0.X:8000)
 * PASS_TYPE_CERTIFICATE_PATH - *str.* path to Pass Type cert (should be `'certificates/pass.pem'`)
+* PEM_PASSWORD - *str.* password used when exporting the cert key
 * WWDR_CERTIFICATE_PATH - *str.* path to WWDR cert (should be `'certificates/wwdr.pem'`)
 * OC_SHARED_SECRET - *str.* shared secret with client
 
@@ -252,7 +253,7 @@ Inside the file paste the following lines:
 ```sh
 [program: server]
 directory=/path/to/MOBIL-ID-Server
-command=/path/to/MOBIL-ID-Server/bin/gunicorn -w <num-workers> run:app
+command=/path/to/MOBIL-ID-Server/bin/gunicorn -w <num-workers> -k uvicorn.workers.UvicornWorker main:app
 user=admin
 autostart=true
 autorestart=true

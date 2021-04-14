@@ -7,7 +7,6 @@ Pillow
 sqlalchemy
 pycryptodomex
 apscheduler
-M2Crypto
 apns2
 gunicorn
 httptools
