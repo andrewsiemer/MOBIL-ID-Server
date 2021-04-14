@@ -27,7 +27,7 @@ LOG_FILE = 'app.log'
 logger = logging.getLogger('app')
 logger.setLevel(logging.INFO)
 f_handler = logging.FileHandler(LOG_FILE)
-f_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+f_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', '%-I:%M:%S %p'))
 logger.addHandler(f_handler)
 
 if config.DEBUG:
