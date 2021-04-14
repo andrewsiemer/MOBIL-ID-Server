@@ -242,7 +242,7 @@ def submit(request: Request, idNum: str = Form(...), idPin: str = Form(...), db:
     entered_id_pin = idPin
 
     logger.debug('Registration submitted for ID (' + entered_id_num + ') with Pin (' +  entered_id_pin + ')')
-    if entered_id_num in config.WHITELIST:    
+    if entered_id_num in config.WHITELIST or not config.WHITELIST:    
         if utils.input_validate(entered_id_num, entered_id_pin): 
             # if user form data passes server-side validation,
             # check for existing pass
@@ -336,12 +336,12 @@ MOBIL-ID Back-End Web Service
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 @app.get("/scan/{pass_hash}", status_code=200, tags=["Reader"])
-async def scan(pass_hash: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+async def scan(pass_hash: str, background_tasks: BackgroundTasks, reader: str = None, db: Session = Depends(get_db)):
     '''
     Scan event converts QR data to serial_number
     '''
 
-    logger.debug('Scan recieved for hash (' + pass_hash + ')')
+    logger.debug('Scan recieved for hash (' + pass_hash + ') from reader (' + reader + ')')
     db_pass = crud.get_pass_by_hash(db, pass_hash)
     if db_pass:
         # if pass exists with matching pash_hash,
@@ -349,12 +349,12 @@ async def scan(pass_hash: str, background_tasks: BackgroundTasks, db: Session = 
         response = db_pass.serial_number
         # start background task to update pass with new pass_hash
         background_tasks.add_task(utils.force_pass_update, db, response)
-        logger.info('Pass (' + db_pass.serial_number + ') scanned successfully')
+        logger.info('Pass (' + db_pass.serial_number + ') scanned successfully from reader (' + reader + ')')
     else:
         # no matching pass found,
         # returns HTML status no matching data
         response = Response(status_code=204)
-        logger.debug('Scan unsuccessful for hash (' + pass_hash + ')')
+        logger.debug('Scan unsuccessful for hash (' + pass_hash + ') from reader (' + reader + ')')
 
     return response
 
