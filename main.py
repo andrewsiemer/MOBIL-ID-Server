@@ -24,7 +24,7 @@ import include.crud as crud, include.utils as utils, include.models as models, i
 from include.database import SessionLocal, engine
 
 LOG_FILE = 'app.log'
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('app')
 logger.setLevel(logging.INFO)
 f_handler = logging.FileHandler(LOG_FILE)
 f_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
