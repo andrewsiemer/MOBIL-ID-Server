@@ -48,8 +48,8 @@ class AES256():
             d += d_i
         return d[:self.KEY_LEN], d[self.KEY_LEN:self.KEY_LEN + self.IV_LEN]
 
-OC_SHARED_SECRET=''
 id = '1458777'
+OC_SHARED_SECRET = input('Input OC_SHARED_SECRET: ')
 
 token = AES256()
 request_URL = 'https://account.oc.edu/mobilepass/details/' + id + '?token=' + token.encrypt(id + '-' + str(time.time()), OC_SHARED_SECRET).hex()
