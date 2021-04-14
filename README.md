@@ -27,9 +27,9 @@ The MOBIL-ID Server is a Python web service responsible for creating, deploying,
 
 > You should also always use `sudo apt update && apt upgrade` before starting the installation process to make sure your system packages are up to date.
 
-Install Python 3.8 using:
+Install Python 3 using:
 ```sh
-sudo apt-get install python3.8
+sudo apt-get install python3
 ```
 
 Install PIP using:
@@ -47,7 +47,7 @@ Install Git using:
 sudo apt install git-all -y
 ```
 
-### Download MOBIL-ID Server software
+### Download MOBIL-ID Server Software
 In the current users home directory, run one of the commands below:
 #### From GitHub:
 ```sh
@@ -73,12 +73,12 @@ source bin/activate
 ### Install Dependencies
 Now that we are inside the environment we need to install our dependencies using:
 ```sh
-sudo apt-get install libssl-dev swig python3-dev gcc build-essential libssl-dev libffi-dev python-dev
+sudo apt-get install build-essential libssl-dev libffi-dev python-dev
 ```
 
 ### Update PIP
 ```sh
-pip install --upgrade --force-reinstall pip virtualenv
+python3 -m pip install --upgrade pip
 ```
 
 ### Install PIP Requirements
@@ -90,10 +90,11 @@ pip3 install -r requirements.txt
 ### Getting the Certificates
 1) Get Apple WWDR Certificate
 
-* Certificate is available at: http://developer.apple.com/certificationauthority/AppleWWDRCA.cer
+* Download the certificate at: http://developer.apple.com/certificationauthority/AppleWWDRCA.cer
+* Open Terminal and navigate to the folder where you downloaded the file
 * Convert the DER file it into a PEM:
 ```shell
-	$ openssl x509 -inform der -in AppleWWDRCA.cer -out wwdr.pem
+openssl x509 -inform der -in AppleWWDRCA.cer -out wwdr.pem
 ```
 * Move file to `certificates/`
 
@@ -101,30 +102,63 @@ pip3 install -r requirements.txt
 
 * Login to your Apple Developer Account 
 * Navigate to Certificates, Identifiers & Profiles -> Identifiers -> (+) -> Pass Type IDs
-* Enter a Description & Identifier then click 'Register'
+	* Enter a Description & Identifier then click 'Register'
 * Next, under 'Identifiers' click on the one you just created (pass.xxx.xxx)
-* Under 'Production Certificates' -> 'Create Certificate'
-* Upload a Certificate Signing Request (Follow the 'Learn more' link for help)
-* Finally, click Continue -> Download
-* Convert the DER file it into a PEM:
-```shell
-	$ openssl x509 -inform der -in AppleWWDRCA.cer -out wwdr.pem
-```
+	* Under 'Production Certificates' -> 'Create Certificate'
+	* Upload a Certificate Signing Request (Follow the 'Learn more' link for help)
+	* Finally, click Continue -> Download
+
+3) Get a Pass Type Certificate
+
+* Double-click the pass file you downloaded to install it to your keychain
+* Export the pass certificate as a p12 file:
+    * Open Keychain Access -> Locate the pass certificate (under the login keychain) -> Right-click the pass -> Export
+    * Make sure the File Format is set to `Personal Information Exchange (.p12)` and export to a convenient location
+	* Write down the password used to encrypt the file
+	
+	> You must set a password for the PEM file or you'll get errors when attempt to generate Apple pass files
+
+* Generate the necessary certificate/key PEM file
+    * Open Terminal and navigate to the folder where you exported the p12 file
+    * Generate the pass PEM file:
+
+	```sh
+	openssl pkcs12 -in "Certificates.p12" -clcerts -out pass.pem
+	```
+
+	* Enter the password you just created when exporting to p12
 * Move file to `certificates/`
 
-> Note that if any certificate is expired, you won't be able to create a pass.
+> If any certificate is expired, you won't be able to create a pass
 
 ### Configuring the Server
 First, we need to change the file named `config_sample.py` to `config.py`.
 Now open `config.py` and set these variables:
 
 * DEBUG - *bool.* toggles logging, `/docs` test endpoint, and `pash_hash` viability
+* WEB_SERVICE_URL - *str.* your domain (if running locally it will be something like 192.168.0.X:8000)
+* OC_SHARED_SECRET - *str.* shared secret with client
 * PASS_TYPE_IDENTIFIER - *str.* the Pass Type ID from step 2 above
 * TEAM_IDENTIFIER - *str.* your Team ID found on developer.apple.com
-* WEB_SERVICE_URL - *str.* your domain (if running locally it will be something like 192.168.0.X:8000)
 * PASS_TYPE_CERTIFICATE_PATH - *str.* path to Pass Type cert (should be `'certificates/pass.pem'`)
+* PEM_PASSWORD - *str.* password used when exporting the cert key
 * WWDR_CERTIFICATE_PATH - *str.* path to WWDR cert (should be `'certificates/wwdr.pem'`)
-* OC_SHARED_SECRET - *str.* shared secret with client
+* ISSUER_ID - *str.* identifier of Google Pay API for Passes Merchant Center
+* SAVE_LINK - *str.* (default: `'https://pay.google.com/gp/v/save/'`)
+* VERTICAL_TYPE - *str.* (default: `'VerticalType.LOYALTY'`)
+* CLASS_ID - *str.* the created Class ID from Google Developer portal
+* SERVICE_ACCOUNT_EMAIL_ADDRESS - *str.* Google Developer service account email address
+* SERVICE_ACCOUNT_FILE - *str.* path to Google credential cert (should be `'certificates/...json'`)
+* ORIGINS - *list* (default: `[WEB_SERVICE_URL]`)
+* AUDIENCE - *str.* (default: `'google'`)
+* JWT_TYPE - *str.* (default: `'savetoandroidpay'`)
+* SCOPES - *list* (default: `['https://www.googleapis.com/auth/wallet_object.issuer']`)
+* EMAIL_PORT - *int* email port for ssl (default: `465`)
+* SMTP_SERVER - *str.* smtp server address of server email account (default: `'smtp.gmail.com'`)
+* SENDER_EMAIL - *str.* server email account login
+* EMAIL_PASSWORD - *str.* password to server email account
+* RECEIVER_EMAIL - *list* contains receiver email addresses as strings
+* WHITELIST - *list* contains whitelisted ID numbers as strings
 
 ### Start Development Server
 To start server on your local network include the host tag with your ip address.
@@ -135,6 +169,13 @@ uvicorn main:app --reload --host <ip>
 ### View Registation Page
 ```
 http://<ip>:8000
+```
+
+### Done!
+You can now safely shutdown the development server by pressing `^C`.
+Then, leave the virtual environment with:
+```sh
+deactivate
 ```
 
 ## Deploying to a Production Environment (Linux)
@@ -250,10 +291,10 @@ sudo nano /etc/supervisor/conf.d/server.conf
 
 Inside the file paste the following lines:
 ```sh
-[program: server]
+[program:server]
 directory=/path/to/MOBIL-ID-Server
-command=/path/to/MOBIL-ID-Server/bin/gunicorn -w <num-workers> run:app
-user=admin
+command=/path/to/MOBIL-ID-Server/bin/gunicorn -w <num-workers> -k uvicorn.workers.UvicornWorker main:app
+user=root
 autostart=true
 autorestart=true
 stopasgroup=true
@@ -263,6 +304,9 @@ stdout_logfile=/var/log/server/server.out.log
 ```
 
 Then, change `<num-workers>` to the number of available processors the computer has plus one. Change the `/path/to/` to the actual path to the downloaded software.
+
+
+Save and exit the file using `^X` then type `y` and click your `enter/return` key.
 
 Create the server log files with:
 ```sh
@@ -280,13 +324,30 @@ sudo supervisorctl reload
 Your server should now be available in a browser using:
 `https://<your-domain>`
 
+### Turn Off Debug Mode
+Since you are know running the server in a production environment, you should turn off debug mode.
+To do this we first need to open the server config file.
+```sh
+sudo nano /path/to/MOBIL-ID-Server/config.py
+```
+Once inside the file change the `DEBUG` flag to `False`
+
+Save and exit the file using `^X` then type `y` and click your `enter/return` key.
+
+Since we changed files in the active server, we need to reload it using:
+```sh
+sudo supervisorctl reload
+```
+
 ### Update Server
-You can update the server from the main repository using:
+You can update the server at anytime from the remote repository using:
 ```sh
 cd /path/to/MOBIL-ID-Server
 git pull
 sudo supervisorctl reload
 ```
+
+---
 
 ## Reference Links
 ### FastAPI
