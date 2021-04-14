@@ -169,7 +169,7 @@ class Pkpass():
             passfile.addFile('thumbnail@3x.png', open('base.pass/thumbnail@3x.png', 'rb'))
 
         # Create and output the Passbook file (.pkpass)
-        passfile.create(config.PASS_TYPE_CERTIFICATE_PATH, config.PASS_TYPE_CERTIFICATE_PATH, config.WWDR_CERTIFICATE_PATH, 'siemer', 'passes/' + user_pass.serial_number + '.pkpass')
+        passfile.create(config.PASS_TYPE_CERTIFICATE_PATH, config.PASS_TYPE_CERTIFICATE_PATH, config.WWDR_CERTIFICATE_PATH, config.PEM_PASSWORD, 'passes/' + user_pass.serial_number + '.pkpass')
 
 class JWT():
     '''
