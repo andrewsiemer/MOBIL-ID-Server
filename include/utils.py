@@ -154,5 +154,5 @@ def send_apn(push_token: str):
     Sends an empty APN to the given device push_token
     '''
     payload = Payload()
-    client = APNsClient(config.PASS_TYPE_CERTIFICATE_PATH, use_sandbox=False, use_alternative_port=False)
+    client = APNsClient(config.PASS_TYPE_CERTIFICATE_PATH, use_sandbox=False, use_alternative_port=False, password=config.PEM_PASSWORD)
     client.send_notification(push_token, payload, config.PASS_TYPE_IDENTIFIER)
