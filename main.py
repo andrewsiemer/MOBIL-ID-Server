@@ -403,19 +403,12 @@ def batch_update_all():
     db.close()
     logger.info('Finished batch update proccess')
 
-@sched.scheduled_job('interval', start_date=str(datetime.now().replace(hour=7, minute=0, second=0, microsecond=0)), days=1)
-def morning_brief():
-    '''
-    Sends a morning brief with all server output at 7:0:0 daily
-    '''
-    utils.send_notification('Morning Brief', utils.get_log(LOG_FILE))
-
-@sched.scheduled_job('interval', start_date=str(datetime.now().replace(hour=19, minute=0, second=0, microsecond=0)), days=1)
+@sched.scheduled_job('interval', start_date=str(datetime.now().replace(hour=21, minute=0, second=0, microsecond=0)), days=1)
 def nightly_brief():
     '''
     Sends a nightly brief with all server output at 19:0:0 daily
     '''
-    utils.send_notification('Nightly Brief', utils.get_log(LOG_FILE))
+    utils.send_notification('Daily Brief', utils.get_log(LOG_FILE))
 
 @app.on_event("shutdown")
 def shutdown_event():
