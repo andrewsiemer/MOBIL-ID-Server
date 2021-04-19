@@ -107,7 +107,7 @@ def makeLoyaltyObjectResource(classId, objectId, user):
         "heroImage": {
             "kind": "walletobjects#image",
             "sourceUri": {
-                "uri": "https://www.ocmobileid.com/static/heroImg/" + user.serial_number + ".png",
+                "uri": config.WEB_SERVICE_URL + "/static/heroImg/" + user.serial_number + ".png",
                 "image":  'asdasdas',
                 "label": "heroImg"
             }
