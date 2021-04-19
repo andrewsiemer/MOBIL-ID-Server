@@ -77,7 +77,10 @@ class User():
         self.kudos_earned = str(self.data['KudosEarned'])
         self.kudos_required = str(self.data['KudosRequired'])
         self.id_pin = self.data['IDPin']
-        self.print_balance = self.data['PrintBalance']
+        try:
+            self.print_balance = self.data['PrintBalance']
+        except:
+            self.print_balance = None
         try:
             self.mailbox = self.data['Mailbox']
         except:
@@ -101,7 +104,8 @@ class Pkpass():
         passinfo.addSecondaryField('meals', user_pass.meals_remaining, 'Meals Remaining', 'You have %@ meal swipes remaining.', textAlignment=Alignment.CENTER)
         passinfo.addSecondaryField('ethos', user_pass.kudos_earned + "/" + user_pass.kudos_required, 'Kudos', 'You have %@ Kudos of your Semester Goal.', textAlignment=Alignment.RIGHT)
         passinfo.addBackField('pin', user_pass.id_pin, 'ID Pin')
-        passinfo.addBackField('print', user_pass.print_balance, 'Print Balance', 'Your print balance is now %@.')
+        if user_pass.print_balance:
+            passinfo.addBackField('print', user_pass.print_balance, 'Print Balance', 'Your print balance is now %@.')
         if user_pass.mailbox:
             passinfo.addBackField('boxnumber', user_pass.mailbox, 'Mailbox Number')
         passinfo.addBackField('info', 'Please note that Automatic Updates must be turned on (default) to use the ID.\n\n' \
