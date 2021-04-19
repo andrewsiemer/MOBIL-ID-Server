@@ -131,7 +131,7 @@ First, we need to change the file named `config_sample.py` to `config.py`.
 Now open `config.py` and set these variables:
 
 * DEBUG - *bool.* toggles logging, `/docs` test endpoint, and `pash_hash` viability
-* WEB_SERVICE_URL - *str.* your domain (if running locally it will be something like 192.168.0.X:8000)
+* WEB_SERVICE_URL - *str.* your domain (must include `https://`)
 * OC_SHARED_SECRET - *str.* shared secret with client
 * PASS_TYPE_IDENTIFIER - *str.* the Pass Type ID from step 2 above
 * TEAM_IDENTIFIER - *str.* your Team ID found on developer.apple.com
