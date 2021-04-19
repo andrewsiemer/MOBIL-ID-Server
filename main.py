@@ -27,7 +27,7 @@ LOG_FILE = 'app.log'
 logger = logging.getLogger('app')
 logger.setLevel(logging.INFO)
 f_handler = logging.FileHandler(LOG_FILE)
-f_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', '%-I:%M:%S %p'))
+f_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', '%I:%M:%S %p'))
 logger.addHandler(f_handler)
 
 if config.DEBUG:
@@ -276,7 +276,7 @@ def submit(request: Request, idNum: str = Form(...), idPin: str = Form(...), db:
                 # respond with success page with Add to Apple Wallet button
                 response = templates.TemplateResponse('success.html', \
                     {'request': request, 'pass_hash': db_pass.pass_hash, 'jwt': google.get_link()})
-                logger.debug('Existing user successful request for ID (' + entered_id_num + ')')
+                logger.info('Existing user successful request for ID (' + entered_id_num + ')')
             else:
                 # pass for user already exists but login is incorrect,
                 # user not valid through server quick validation
@@ -349,12 +349,12 @@ async def scan(pass_hash: str, background_tasks: BackgroundTasks, reader: str = 
         response = db_pass.serial_number
         # start background task to update pass with new pass_hash
         background_tasks.add_task(utils.force_pass_update, db, response)
-        logger.info('Pass (' + db_pass.serial_number + ') scanned successfully from reader (' + reader + ')')
+        logger.info('Pass (' + db_pass.serial_number + ') scanned by reader (' + reader + ')')
     else:
         # no matching pass found,
         # returns HTML status no matching data
         response = Response(status_code=204)
-        logger.debug('Scan unsuccessful for hash (' + pass_hash + ') from reader (' + reader + ')')
+        logger.debug('Scan unsuccessful for hash (' + pass_hash + ') by reader (' + reader + ')')
 
     return response
 
@@ -391,17 +391,19 @@ def batch_update_all():
     '''
     Updates every pass in database at midnight each day
     '''
-    logger.info('Starting batch update proccess')
+    logger.info('Starting batch update process')
 
     db = SessionLocal()
     pass_list = crud.get_all_passes(db)
 
+    count = 0
     for serial_number in pass_list:
         logger.debug('Trying to update pass (' + serial_number + ')')
+        count += 1
         utils.update_pass(db,serial_number)
 
     db.close()
-    logger.info('Finished batch update proccess')
+    logger.info('Finished batch update process for (' + str(count) + ') passes.')
 
 @sched.scheduled_job('interval', start_date=str(datetime.now().replace(hour=21, minute=0, second=0, microsecond=0)), days=1)
 def nightly_brief():
