@@ -77,9 +77,8 @@ class User():
         self.kudos_earned = str(self.data['KudosEarned'])
         self.kudos_required = str(self.data['KudosRequired'])
         self.id_pin = self.data['IDPin']
-        try:
-            self.print_balance = self.data['PrintBalance']
-        except:
+        self.print_balance = self.data['PrintBalance']
+        if self.print_balance == '':
             self.print_balance = None
         try:
             self.mailbox = self.data['Mailbox']
