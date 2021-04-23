@@ -9,7 +9,7 @@ The MOBIL-ID Server is a Python web service responsible for creating, deploying,
 ![OC Graphic](/static/team/OC-graphic.jpeg)
 
 ### MOBIL-ID Reader
-MOBIL-ID passes can be scanned by the [MOBIL-ID Reader](https://github.com/andrewsiemer/MOBIL-ID-Reader)
+The MOBIL-ID Reader is a slave device responsible for scanning MOBIL-ID passes. It captures the QR data from a scanned pass and sends it in a GET request to the MOBIL-ID Server. The MOBIL-ID Server returns the associated user ID number. The MOBIL-ID Reader then hands the ID number to the transactional system via the USB connection.[Go to MOBIL-ID Reader Repo](https://github.com/andrewsiemer/MOBIL-ID-Reader)
 
 ### The MOBIL-ID Team
 - Andrew Siemer - Electrical/Software Engineer - Team Lead
