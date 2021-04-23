@@ -1,12 +1,12 @@
 ''' main.py: A web service for Apple PassKit 
-Built as a mobile ID solution for Oklahoma Christian University '''
+Built as mobile front-end to Oklahoma Christian University’s user management system '''
 
 __author__ = "Andrew Siemer, Jacob Button, Kyla Tarpey, Zach Jones"
-__copyright__ = "Copyright 2021, Team MOBIL-ID (Oklahoma Christian University)"
-__version__ = "0.0.1"
+__copyright__ = "Copyright 2021, MOBIL-ID (Oklahoma Christian University)"
+__version__ = "0.1.0"
 __maintainer__ = "Andrew Siemer"
 __email__ = "andrew.siemer@eagles.oc.edu"
-__status__ = "Development"
+__status__ = "Production"
 
 import threading, logging # standard library
 from datetime import datetime, timedelta 
@@ -297,7 +297,7 @@ def submit(request: Request, idNum: str = Form(...), idPin: str = Form(...), db:
     return response
 
 @app.post("/download/{pass_hash}", status_code=200, tags=["Registration"])
-def download(request: Request, pass_hash: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def download(request: Request, pass_hash: str, db: Session = Depends(get_db)):
     '''
     User can Download Pass
     '''
