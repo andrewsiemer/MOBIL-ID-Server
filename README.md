@@ -8,6 +8,9 @@ The MOBIL-ID Server is a Python web service responsible for creating, deploying,
 
 ![OC Graphic](/static/team/OC-graphic.jpeg)
 
+### MOBIL-ID Reader
+MOBIL-ID passes can be scanned by the [MOBIL-ID Reader](https://github.com/andrewsiemer/MOBIL-ID-Reader)
+
 ### The MOBIL-ID Team
 - Andrew Siemer - Electrical/Software Engineer - Team Lead
 - Jacob Button - Electrical/Software Engineer
