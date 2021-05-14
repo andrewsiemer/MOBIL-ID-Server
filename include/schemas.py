@@ -132,7 +132,7 @@ class Pkpass():
         passfile.locations.append(Location(35.611219, -97.467255, relevantText='Welcome to Garvey! Tap to scan your ID.', maxDistance=20))
         passfile.locations.append(Location(35.6115, -97.4695, relevantText='Welcome to the Branch! Tap to scan your ID.', maxDistance=20))
         passfile.locations.append(Location(35.61201, -97.46850, relevantText='Welcome to the Brew! Tap to scan your ID.', maxDistance=20))
-        passfile.locations.append(Location(35.613257, -97.467833, relevantText='Welcome to the PEC! Tap to scan your ID.', maxDistance=20))
+        # passfile.locations.append(Location(35.613257, -97.467833, relevantText='Welcome to the PEC! Tap to scan your ID.', maxDistance=20))
         passfile.ibeacons = list()
         passfile.ibeacons.append(IBeacon('1F234454-CF6D-4A0F-ADF2-F4911BA9FFA9', 1, 1, 'Tap to scan your ID.'))
 
