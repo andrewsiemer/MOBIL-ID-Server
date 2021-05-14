@@ -16,7 +16,8 @@
     <link rel="icon" type="image/png" href="{{ url_for('static', path='favicon.ico') }}"/>
     <link rel="apple-touch-icon" href="{{ url_for('static', path='apple-touch-icon.png') }}"/>
     <link href="{{ url_for('static', path='css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', path='css/signin.css') }}" rel="stylesheet">    
+    <link href="{{ url_for('static', path='css/signin.css') }}" rel="stylesheet">  
+    <link href='https://fonts.googleapis.com/css?family=Nunito' rel='stylesheet'>  
     <title>Request your OC ID</title>
   </head>
 
@@ -24,7 +25,7 @@
     <form class="form-signin" onSubmit="login()" action="/" method="post">
       <br>
       <img class="mb-4" src="{{ url_for('static', path='oc-logo.png') }}" alt="" width="72" height="72" draggable="false" onContextMenu="return false;">
-      <h1 class="h3 mb-3 font-weight-normal">Request your OC ID</h1>
+      <h1 class="h3 mb-3 font-weight-bold font-spacing-tight">Request your OC ID</h1>
       <p>Your ID number and pin can be found in "My Info" on <a href='https://my.oc.edu/default/my_info/page?relativePath=%2FIdPin' class="text-primary" target="_blank" rel="noopener noreferrer"><b>myOC</b></a>.</p>
       
       {% if feedback != null%}
