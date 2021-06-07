@@ -1,4 +1,9 @@
+# MOBIL-ID Server
+
+![CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)
+
 ## What is MOBIL-ID?
+
 #### A Python web service & embedded reader for Apple Wallet & Google Pay
 
 The MOBIL-ID project is an engineering systems capstone project for Oklahoma Christian University. The team’s mission statement is to create a mobile platform front-end to Oklahoma Christian University’s user management system. Students and Faculty will use their mobile ID to gain chapel attendance, enter the university cafeteria, and pay using Eagle Bucks.
@@ -21,6 +26,9 @@ The MOBIL-ID Reader is a slave device responsible for scanning MOBIL-ID passes. 
 - Steve Maher - Mentor
 - Luke Hartman - Customer
 - Peyton Chenault - System Integrator
+
+This work is licensed under a
+[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-nc-sa/4.0/).
 
 ---
 
