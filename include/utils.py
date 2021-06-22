@@ -1,7 +1,7 @@
 '''
 utils.py: Reusable functions to interact with the main program.
 '''
-import secrets, sys, base64, smtplib, ssl
+import secrets, sys, base64, smtplib, ssl, time
 from datetime import datetime
 
 from sqlalchemy.orm import Session
@@ -108,19 +108,11 @@ def input_validate(id: str, pin: str):
     
     return valid
 
-def unique_pass_hash(db: Session, num_bytes: int):
+def unique_pass_hash(serial_number: int):
     '''
-    Makes sure hash is unique in the database
+    Returns hashed serial_number and time in hex
     '''
-    unique = False
-    while(not unique):
-        hash = secrets.token_urlsafe(num_bytes)
-
-        db_pass = crud.get_pass_by_hash(db, hash)
-        if not db_pass: # no pass has hash therefor unique
-            unique = True
-
-    return hash
+    return AES256().encrypt(serial_number + '-' + str(time.time()), 'password').hex() # TODO change 'password' with config variable
 
 def get_pass_file(db: Session, serial_number: str):
     '''
